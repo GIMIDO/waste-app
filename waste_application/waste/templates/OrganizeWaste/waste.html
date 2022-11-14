@@ -1,0 +1,107 @@
+{% extends 'base/base.html' %}
+  {% block content %}
+    <div class="mb-3">
+      <hr />
+      <form
+      class="w-50"
+      method="get"
+      action="{% url 'organize-waste-main' %}"
+      >
+        <p class="fs-4 fw-bold">Поиск</p>
+        <div class="input-group mb-1">
+          <label class="input-group-text">Источник</label>
+          <select name="type" type="text" class="form-select">
+            <option value="{{ page_data.e_s }}" selected hidden>{{ page_data.e_s }}</option>
+            <option value="Элеватор">Элеватор</option>
+            <option value="Мельница">Мельница</option>
+            <option value="Крупозавод">Крупозавод</option>
+            <option value="Фасовка">Фасовка</option>
+          </select>
+        </div>
+
+        <div class="input-group mb-3">
+          <label class="input-group-text">Год</label>
+          <input type="number" name="year" class="form-control me-1" placeholder="Год" value="{{ page_data.year }}">
+
+          <label class="input-group-text">Квартал</label>
+          <select name="quarter" type="text" class="form-select">
+            <option value="{{ page_data.quarter }}" selected hidden>{{ page_data.quarter }}</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+
+        <input class="btn btn-primary" type="submit" value="Найти" />
+      </form>
+
+      <hr />
+
+      <p class="fs-4"><strong>{{ page_data.e_s }}</strong>, <strong>{{ page_data.quarter }}</strong> квартал, <strong>{{ page_data.year }}</strong> год</p>
+      
+      
+
+    <table class="table table-bordered table-hover mt-3">
+      <thead>
+        <tr class="text-center">
+          <th>№ ист.</th>
+          <th>№ АУ или ПТУ</th>
+          <th>Вредное вещество</th>
+
+          <th>{{ page_data.months.1 }}</th>
+          <th>{{ page_data.months.2 }}</th>
+          <th>{{ page_data.months.3 }}</th>
+
+          <th>Всего</th>
+
+          <th>М, г/с</th>
+          <th>G, т/год</th>
+          <th style="padding-left: 0; padding-right: 0; width: 6%;"></th>
+        </tr>
+      </thead>
+
+      <tbody>
+          {% for elem in table_data.data %}
+
+            <tr class="text-center">
+              <td>{{ elem.emission_source_number }}</td>
+              <td>{{ elem.au_ptu_number }}</td>
+              <td>{{ elem.harmful_substance_name }}</td>
+
+              <td>{{ elem.first_month }}</td>
+              <td>{{ elem.second_month }}</td>
+              <td>{{ elem.third_month }}</td>
+              <td>{{ elem.all }}</td>
+
+              <td>{{ elem.M }}</td>
+              <td>{{ elem.G }}</td>
+              <td style="padding-left: 0; padding-right: 0;">
+                <a href="{% url 'organize-waste-update' page_data.e_s page_data.year page_data.quarter elem.pk %}" class="btn btn-warning btn-sm me-1">Изм</a>
+                <a href="{% url 'organize-waste-delete' elem.pk %}" class="btn btn-danger btn-sm">Удл</a>
+              </td>
+
+            </tr>
+          {% endfor %}
+      </tbody>
+
+      <tfoot>
+        <tr class="text-end">
+          <td colspan="8"><strong>Итого орган. ист. элеватора:</strong></td>
+          <td colspan="1" class="text-center">
+            <strong>
+              {{ table_data.all_G }}
+            </strong>
+          </td>
+          <td></td>
+        </tr>
+      </tfoot>
+
+    </table>
+    <a href="{% url 'organize-waste-create' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-success">Добавить в эту таблицу</a>
+    <a href="{% url 'excel-download' 'ow' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel</a>
+  </div>
+
+    {% endblock content %}
+  </body>
+</html>
