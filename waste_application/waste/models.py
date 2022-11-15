@@ -4,7 +4,7 @@ from django.db import models
 class OrganizeWaste(models.Model):
 
     TYPE_CHOICES = (
-        ('Элеватор', 'Elevator'),
+        ('Элеватор', 'Элеватор'),
         ('Мельница', 'Мельница'),
         ('Крупозавод', 'Крупозавод'),
         ('Фасовка', 'Фасовка')

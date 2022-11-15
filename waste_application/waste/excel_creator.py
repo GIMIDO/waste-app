@@ -28,7 +28,10 @@ class DownloadExcel(View):
         )
 
         NAMES = {
-            'Элеватор': 'elevator'
+            'Элеватор': 'Elevator',
+            'Мельница': 'Mill',
+            'Крупозавод': 'Groats_factory',
+            'Фасовка': 'Packed',
         }
 
         response = HttpResponse(content_type='application/ms-excel')
