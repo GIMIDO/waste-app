@@ -56,3 +56,38 @@ class OrganizeWasteForm(forms.ModelForm):
             self.fields['first_month'].label = 'Октябрь'
             self.fields['second_month'].label = 'Ноябрь'
             self.fields['third_month'].label = 'Декабрь'
+
+
+class WeldingWasteForm(forms.ModelForm):
+
+    year = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    iron_ox_ton = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    mg_ton = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    hyd_flu_ton = forms.CharField(disabled=True, widget = forms.HiddenInput())
+
+    class Meta:
+        model = WeldingWaste
+
+        fields = '__all__'
+
+        widgets = {
+            'quarter': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type':'number', 'step': '1', 'max': '4', 'min':'1'}),
+
+            'mark': forms.TextInput(attrs={'class': 'form-control mb-1', 'type':'text'}),
+            'emission': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type':'number'}),
+
+            'iron_ox_kg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'1', 'min': '0'}), 
+
+            'mg_gg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
+
+            'hyd_flu_gkg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
+
+        }
+
+    def __init__(self, year, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['year'].initial = year
+        self.fields['iron_ox_ton'].initial = 0
+        self.fields['mg_ton'].initial = 0
+        self.fields['hyd_flu_ton'].initial = 0

@@ -1,6 +1,7 @@
 
 from django.views.generic import View
 from django.http import HttpResponse
+from django.shortcuts import redirect
 
 import xlwt
 
@@ -8,7 +9,16 @@ from .utils import *
 from .models import *
 
 
-class DownloadExcel(View):
+def get_columns(quarter, toc):
+
+    months = get_months(str(quarter))
+
+    match toc:
+        case 'ow':
+            return ['№ ист.', '№ АУ или ПТУ', 'Вредное вещество', months['1'], months['2'], months['3'], 'Всего', 'М, г/с', 'G, т/год']
+
+
+class OrganizeDownloadExcel(View):
 
     CHOISE = {
         'ow': OrganizeWaste
@@ -26,6 +36,11 @@ class DownloadExcel(View):
             year=year,
             quarter=quarter
         )
+
+        if data.exists():
+            pass
+        else:
+            return redirect(f'/organize/waste/main/?type={emission_source}&year={year}&quarter={quarter}')
 
         NAMES = {
             'Элеватор': 'Elevator',
@@ -71,5 +86,91 @@ class DownloadExcel(View):
         ws.write(row_num + 1, 7, 'Итого орган. ист. элеватора:', font_style)
         ws.write(row_num + 1, 8, organize_waste_calc_all_G(data), font_style)
 
+        wb.save(response)
+        return response
+
+
+class WeldingDownloadExcel(View):
+
+    def get(self, request, **kwargs):
+
+        year = kwargs.get('year')
+
+        data = WeldingWaste.objects.filter(
+            year=year,
+        )
+
+        if data.exists():
+            pass
+        else:
+            return redirect(f'/welding/waste/main/?year={year}')
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response.headers['Content-Disposition'] = f'attachment; filename="Weldings_{year}.xls"'
+
+        wb = xlwt.Workbook(encoding='utf-8')
+
+        ws = wb.add_sheet("sheet1")
+
+        row_num = 0
+
+        font_style = xlwt.XFStyle()
+
+        font_style.font.bold = True
+
+        columns = ['Квартал', 'Марка электр.', 'Удельн. выдел.', 'Оксид железа', '', 'Марганец', '', 'Фтористый водород', '']
+        columns2 = ['', '', '', 'кг', 'т/год', 'г/г', 'т/год', 'г/кг', 'т/год']
+
+        for col_num in range(len(columns)):
+            ws.write(row_num, col_num, columns[col_num], font_style)
+        row_num += 1
+        for col_num in range(len(columns2)):
+            ws.write(row_num, col_num, columns2[col_num], font_style)
+
+        font_style = xlwt.XFStyle()
+
+        quarters = get_quarters(data)
+        sum_calc = welding_waste_sum_calc(data)
+
+        for q in quarters:
+            for my_row in data:
+                if (my_row.quarter == q):
+                    row_num += 1
+                    ws.write(row_num, 0, my_row.quarter, font_style)
+                    ws.write(row_num, 1, my_row.mark, font_style)
+                    ws.write(row_num, 2, my_row.emission, font_style)
+
+                    ws.write(row_num, 3, my_row.iron_ox_kg, font_style)
+                    ws.write(row_num, 4, my_row.iron_ox_ton, font_style)
+
+                    ws.write(row_num, 5, my_row.mg_gg, font_style)
+                    ws.write(row_num, 6, my_row.mg_ton, font_style)
+
+                    ws.write(row_num, 7, my_row.hyd_flu_gkg, font_style)
+                    ws.write(row_num, 8, my_row.hyd_flu_ton, font_style)
+
+            row_num += 1
+            ws.write(row_num, 0, "Итого:", font_style)
+            ws.write(row_num, 3, sum_calc[str(q)]['s_i_kg'], font_style)
+            ws.write(row_num, 4, sum_calc[str(q)]['s_i_t'], font_style)
+
+            ws.write(row_num, 5, sum_calc[str(q)]['s_m_g'], font_style)
+            ws.write(row_num, 6, sum_calc[str(q)]['s_m_t'], font_style)
+
+            ws.write(row_num, 7, sum_calc[str(q)]['s_hf_g'], font_style)
+            ws.write(row_num, 8, sum_calc[str(q)]['s_hf_t'], font_style)
+            row_num += 1
+            q += 1
+
+        row_num += 1
+        ws.write(row_num, 0, "Итого за год:", font_style)
+        ws.write(row_num, 3, sum_calc["year"]['y_i_kg'], font_style)
+        ws.write(row_num, 4, sum_calc["year"]['y_i_t'], font_style)
+
+        ws.write(row_num, 5, sum_calc["year"]['y_m_g'], font_style)
+        ws.write(row_num, 6, sum_calc["year"]['y_m_t'], font_style)
+
+        ws.write(row_num, 7, sum_calc["year"]['y_hf_g'], font_style)
+        ws.write(row_num, 8, sum_calc["year"]['y_hf_t'], font_style)
         wb.save(response)
         return response

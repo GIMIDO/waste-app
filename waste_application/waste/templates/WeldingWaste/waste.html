@@ -1,0 +1,168 @@
+{% extends 'base/base.html' %} {% block content %}
+<div class="mb-3">
+  <hr />
+  <form class="w-50" method="get" action="{% url 'welding-waste-main' %}">
+    <p class="fs-4 fw-bold">Поиск</p>
+    <div class="input-group mb-3">
+      <label class="input-group-text">Год</label>
+      <input
+        type="number"
+        name="year"
+        class="form-control me-1"
+        placeholder="Год"
+        value="{{ page_data.year }}"
+      />
+    </div>
+
+    <input class="btn btn-primary" type="submit" value="Найти" />
+  </form>
+
+  <hr />
+
+  <p class="fs-4">
+    Расчет выброса вредных веществ при выполнении сварочных работ за
+    <strong>{{ page_data.year }}</strong> год
+  </p>
+
+  {% if sum_calc %}
+  <p class="fs-6 text-end">
+    Квартальный и годовой расчет
+  </p>
+  <table class="table table-bordered table-hover mt-3">
+    <thead>
+      <tr class="text-center align-middle">
+        <th rowspan="2"></th>
+        <th colspan="2">Оксид железа</th>
+        <th colspan="2">Марганец</th>
+        <th colspan="2">Фтористый водород</th>
+      </tr>
+      <tr class="text-center">
+        <th>кг</th>
+        <th>т/год</th>
+        <th>г/г</th>
+        <th>т/год</th>
+        <th>г/кг</th>
+        <th>т/год</th>
+      </tr>
+    </thead>
+    <tbody class="text-center align-middle">
+      <tr>
+        <td><strong>1</strong> квартал</td>
+        <td>{{ sum_calc.1.s_i_kg }}</td>
+        <td>{{ sum_calc.1.s_i_t }}</td>
+        <td>{{ sum_calc.1.s_m_g }}</td>
+        <td>{{ sum_calc.1.s_m_t }}</td>
+        <td>{{ sum_calc.1.s_hf_g }}</td>
+        <td>{{ sum_calc.1.s_hf_t }}</td>
+      </tr>
+      <tr>
+        <td><strong>2</strong> квартал</td>
+        <td>{{ sum_calc.2.s_i_kg }}</td>
+        <td>{{ sum_calc.2.s_i_t }}</td>
+        <td>{{ sum_calc.2.s_m_g }}</td>
+        <td>{{ sum_calc.2.s_m_t }}</td>
+        <td>{{ sum_calc.2.s_hf_g }}</td>
+        <td>{{ sum_calc.2.s_hf_t }}</td>
+      </tr>
+      <tr>
+        <td><strong>3</strong> квартал</td>
+        <td>{{ sum_calc.3.s_i_kg }}</td>
+        <td>{{ sum_calc.3.s_i_t }}</td>
+        <td>{{ sum_calc.3.s_m_g }}</td>
+        <td>{{ sum_calc.3.s_m_t }}</td>
+        <td>{{ sum_calc.3.s_hf_g }}</td>
+        <td>{{ sum_calc.3.s_hf_t }}</td>
+      </tr>
+      <tr>
+        <td><strong>4</strong> квартал</td>
+        <td>{{ sum_calc.4.s_i_kg }}</td>
+        <td>{{ sum_calc.4.s_i_t }}</td>
+        <td>{{ sum_calc.4.s_m_g }}</td>
+        <td>{{ sum_calc.4.s_m_t }}</td>
+        <td>{{ sum_calc.4.s_hf_g }}</td>
+        <td>{{ sum_calc.4.s_hf_t }}</td>
+      </tr>
+      <tr>
+        <td colspan="10"></td></tr>
+      <tr>
+        <td><strong>{{ page_data.year }}</strong> год</td>
+        <td>{{ sum_calc.year.y_i_kg }}</td>
+        <td>{{ sum_calc.year.y_i_t }}</td>
+        <td>{{ sum_calc.year.y_m_g }}</td>
+        <td>{{ sum_calc.year.y_m_t }}</td>
+        <td>{{ sum_calc.year.y_hf_g }}</td>
+        <td>{{ sum_calc.year.y_hf_t }}</td>
+      </tr>
+    </tbody>
+  </table>
+  {% endif %}
+
+  <p class="fs-6 text-end">
+    Сохраненные записи
+  </p>
+  <table class="table table-bordered table-hover mt-3">
+    <thead>
+      <tr class="text-center align-middle">
+        <th rowspan="2" >Квартал</th>
+        <th rowspan="2" >Марка<br />электр.</th>
+        <th rowspan="2" >Удельн.<br />выдел.</th>
+        <th colspan="2">Оксид железа</th>
+        <th colspan="2">Марганец</th>
+        <th colspan="2">Фтористый водород</th>
+        <th rowspan="2" style="width: 6%"></th>
+      </tr>
+      <tr class="text-center">
+        <th>кг</th>
+        <th>т/год</th>
+        <th>г/г</th>
+        <th>т/год</th>
+        <th>г/кг</th>
+        <th>т/год</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for item in q_counter %}
+        {% for elem in table_data.data %}
+          {% if elem.quarter == item %}
+            <tr class="text-center align-middle">
+              <td>{{ elem.quarter }}</td>
+              <td>{{ elem.mark }}</td>
+              <td>{{ elem.emission }}</td>
+              <td>{{ elem.iron_ox_kg }}</td>
+              <td>{{ elem.iron_ox_ton }}</td>
+              <td>{{ elem.mg_gg }}</td>
+              <td>{{ elem.mg_ton }}</td>
+              <td>{{ elem.hyd_flu_gkg }}</td>
+              <td>{{ elem.hyd_flu_ton }}</td>
+              <td style="padding-left: 0; padding-right: 0">
+                <a
+                  href="{% url 'welding-waste-update' page_data.year elem.pk %}"
+                  class="btn btn-warning btn-sm me-1"
+                  >Изм</a
+                >
+                <a
+                  href="{% url 'welding-waste-delete' elem.pk %}"
+                  class="btn btn-danger btn-sm"
+                  >Удл</a
+                >
+              </td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+        <tr>
+          <td colspan="10"></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <a
+    href="{% url 'welding-waste-create' page_data.year %}"
+    class="btn btn-success"
+    >Добавить в эту таблицу</a
+  >
+  <a href="{% url 'excel-download-welding' page_data.year %}" class="btn btn-primary">Скачать как файл Excel</a>
+</div>
+
+{% endblock content %}
