@@ -184,3 +184,147 @@ class DeleteOrganizeWasteView(View):
         obj.delete()
 
         return redirect(f'/organize/waste/main/?type={obj.emission_source}&year={obj.year}&quarter={obj.quarter}')
+
+
+# --- #
+
+
+class WeldingWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        if (self.request.GET.get('year')):
+            year = self.request.GET.get('year')
+        else:
+            year = '2022'
+
+
+        data = WeldingWaste.objects.filter(
+            year=year
+        )
+
+        welding_waste_calc(data)
+
+        context = {
+            'table_data': {
+                'data': data,
+            },
+
+            "page_data": {
+                "year": year,
+            },
+            "q_counter": get_quarters(data),
+            "sum_calc": welding_waste_sum_calc(data)
+        }
+
+        return render(request, "WeldingWaste/waste.html", context)
+
+
+class CreateWeldingWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        year = kwargs.get('year')
+
+        form = WeldingWasteForm(year, request.POST or None)
+
+        context = {
+            'form': form,
+            "year": year,
+        }
+
+        return render(request, 'WeldingWaste/create.html', context)
+
+    def post(self, request, **kwargs):
+
+        year = kwargs.get('year')
+
+        form = WeldingWasteForm(year, request.POST or None)
+
+        if form.is_valid():
+            orgObj = WeldingWaste.objects.create(
+                year = form.cleaned_data['year'],
+                quarter = form.cleaned_data['quarter'],
+                mark = form.cleaned_data['mark'],
+                emission = form.cleaned_data['emission'],
+                iron_ox_kg = form.cleaned_data['iron_ox_kg'],
+                iron_ox_ton = form.cleaned_data['iron_ox_ton'],
+                mg_gg = form.cleaned_data['mg_gg'],
+                mg_ton = form.cleaned_data['mg_ton'],
+                hyd_flu_gkg = form.cleaned_data['hyd_flu_gkg'],
+                hyd_flu_ton = form.cleaned_data['hyd_flu_ton'],
+            )
+            orgObj.save()
+
+            return redirect(f'/welding/waste/main/?year={year}')
+
+        context = {
+            'form': form,
+            "year": year,
+        }
+
+        return render(request, 'WeldingWaste/create.html', context)
+
+
+class UpdateWeldingWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        pk = kwargs.get('pk')
+        year = kwargs.get('year')
+
+        obj = WeldingWaste.objects.get(
+            pk=pk
+        )
+
+        form = WeldingWasteForm(year, request.POST or None, instance=obj)
+
+        context = {
+            'form': form,
+            "year": year,
+        }
+
+        return render(request, 'WeldingWaste/update.html', context)
+
+    def post(self, request, **kwargs):
+
+        pk = kwargs.get('pk')
+        year = kwargs.get('year')
+
+        obj = WeldingWaste.objects.get(
+            pk=pk
+        )
+
+        form = WeldingWasteForm(year, request.POST or None, instance=obj)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect(f'/welding/waste/main/?year={year}')
+
+        context = {
+            'form': form,
+            "year": year,
+        }
+
+        return render(request, 'WeldingWaste/update.html', context)
+
+
+class DeleteWeldingWasteView(View):
+
+    def get(self, request, **kwargs):
+        
+        obj = WeldingWaste.objects.get(pk=(kwargs.get('pk')))
+
+        context = {
+            "obj": obj
+        }
+
+        return render(request, 'WeldingWaste/delete.html', context)
+
+    def post(self, request, **kwargs):
+
+        obj = WeldingWaste.objects.get(pk=(kwargs.get('pk')))
+        obj.delete()
+
+        return redirect(f'/welding/waste/main/?year={obj.year}')

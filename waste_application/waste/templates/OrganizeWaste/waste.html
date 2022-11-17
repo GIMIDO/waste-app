@@ -57,14 +57,14 @@
 
           <th>М, г/с</th>
           <th>G, т/год</th>
-          <th style="padding-left: 0; padding-right: 0; width: 6%;"></th>
+          <th style="width: 6%;"></th>
         </tr>
       </thead>
 
       <tbody>
           {% for elem in table_data.data %}
 
-            <tr class="text-center">
+            <tr class="text-center align-middle">
               <td>{{ elem.emission_source_number }}</td>
               <td>{{ elem.au_ptu_number }}</td>
               <td>{{ elem.harmful_substance_name }}</td>
