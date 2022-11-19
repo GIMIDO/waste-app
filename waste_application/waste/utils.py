@@ -12,26 +12,6 @@ import decimal
 #             else:
 #                setattr(self, key, DictObj(val) if isinstance(val, dict) else val)
 
-               
-# --- #
-
-def organize_waste_calc_all(data):
-
-    for elem in data:
-        elem.all = elem.first_month + elem.second_month + elem.third_month
-        elem.G = round(elem.all * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 5)
-        elem.save()
-    
-    
-def organize_waste_calc_all_G(data):
-
-    all_G = 0
-
-    for elem in data:
-        all_G += elem.G
-    
-    return all_G
-
 
 def get_months(quarter):
     
@@ -65,6 +45,24 @@ def get_months(quarter):
             '2': 'Месяц 2',
             '3': 'Месяц 3'
         }
+
+# --- #
+
+def organize_waste_calc_all(data):
+
+    for elem in data:
+        elem.all = elem.first_month + elem.second_month + elem.third_month
+        elem.G = round(elem.all * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 5)
+        elem.save()
+    
+def organize_waste_calc_all_G(data):
+
+    all_G = 0
+
+    for elem in data:
+        all_G += elem.G
+    
+    return all_G
 
 # --- #
 
@@ -145,3 +143,44 @@ def welding_waste_sum_calc(data):
     sum_calc["year"] = json_y
 
     return sum_calc
+
+# --- #
+
+def unorganize_waste_calculate(data):
+
+    for elem in data:
+        elem.all = elem.first_month + elem.second_month + elem.third_month
+        elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 3)
+        elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 4)
+
+        elem.save()
+
+def unorganize_calc_data(data, obj_type):
+    match obj_type:
+        case "Мельзавод":
+            h_s = ['Пыль зерновая м/з', 'Пыль мучная']
+            p_1, p_2 = 0, 0
+
+            for elem in data:
+                if elem.harmful_substance_name == h_s[0]:
+                    p_1 += elem.G
+                else:
+                    p_2 += elem.G
+            
+            return [p_1, p_2]
+
+        case "Крупозавод":
+            pass
+        case "Р/Б":
+            pass
+    
+def get_hs(obj_type):
+
+    match obj_type:
+        case "Мельзавод":
+            return ['Пыль зерновая м/з', 'Пыль мучная']
+
+        case "Крупозавод":
+            pass
+        case "Р/Б":
+            pass

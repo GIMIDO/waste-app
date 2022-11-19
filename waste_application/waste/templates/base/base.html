@@ -16,6 +16,7 @@
 
     <nav class="navbar justify-content-center container my-2">
       <a class="btn btn-primary ms-2 me-2" href="{% url 'home' %}">Выбрать расчет</a>
+      <a class="btn btn-warning ms-2 me-2" href="http://127.0.0.1:8000/admin/">Админка</a>
     </nav>
 
     {% block content %}
@@ -25,6 +26,8 @@
       <a class="btn btn-primary ms-2 me-2" href="{% url 'organize-waste-main' %}">Организованные (отходы)</a>
 
       <a class="btn btn-primary ms-2 me-2" href="{% url 'welding-waste-main' %}">Сварка (отходы)</a>
+
+      <a class="btn btn-primary ms-2 me-2" href="{% url 'unorganize-waste-main' %}">Неорганизованные (отходы)</a>
 
     </div>
 

@@ -19,4 +19,6 @@ urlpatterns = [
     path('welding/waste/update/<int:year>/<int:pk>/', UpdateWeldingWasteView.as_view(), name='welding-waste-update'),
     path('welding/waste/delelte/<int:pk>/', DeleteWeldingWasteView.as_view(), name='welding-waste-delete'),
     path('welding/excel/<int:year>/', WeldingDownloadExcel.as_view(), name='excel-download-welding'),
+
+    path('unorganize/waste/main/', UnOrganizeWasteView.as_view(), name='unorganize-waste-main'),
 ]
