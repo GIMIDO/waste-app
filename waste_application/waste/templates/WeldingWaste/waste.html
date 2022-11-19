@@ -103,7 +103,6 @@
   <table class="table table-bordered table-hover mt-3">
     <thead>
       <tr class="text-center align-middle">
-        <th rowspan="2" >Квартал</th>
         <th rowspan="2" >Марка<br />электр.</th>
         <th rowspan="2" >Удельн.<br />выдел.</th>
         <th colspan="2">Оксид железа</th>
@@ -123,10 +122,12 @@
 
     <tbody>
       {% for item in q_counter %}
+      <tr>
+        <td colspan="10"><i>Квартал {{ item }}</i></td>
+      </tr>
         {% for elem in table_data.data %}
           {% if elem.quarter == item %}
             <tr class="text-center align-middle">
-              <td>{{ elem.quarter }}</td>
               <td>{{ elem.mark }}</td>
               <td>{{ elem.emission }}</td>
               <td>{{ elem.iron_ox_kg }}</td>
@@ -150,9 +151,7 @@
             </tr>
           {% endif %}
         {% endfor %}
-        <tr>
-          <td colspan="10"></td>
-        </tr>
+
       {% endfor %}
     </tbody>
   </table>

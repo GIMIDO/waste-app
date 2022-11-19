@@ -5,7 +5,7 @@
 <hr class="mt-3" />
 
 <form action="" method="post" enctype="multipart/form-data" class="w-50">
-  <p class="fs-4">Добавление в <strong>{{ year }}</strong> год:</p>
+  <p class="fs-4">Добавление в <strong>{{ quarter }}</strong> квартал <strong>{{ year }}</strong> года, <strong>{{ obj_type }}</strong>:</p>
     {% csrf_token %} 
     {{ form }}
 

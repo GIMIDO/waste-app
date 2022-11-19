@@ -1,0 +1,153 @@
+{% extends 'base/base.html' %} {% block content %}
+<div class="mb-3">
+  <hr />
+  <form class="w-50" method="get" action="{% url 'unorganize-waste-main' %}">
+    <p class="fs-4 fw-bold">Поиск</p>
+
+    <div class="input-group mb-1">
+      <label class="input-group-text">Источник</label>
+      <select name="obj_type" type="text" class="form-select">
+        <option value="{{ page_data.obj_type }}" selected hidden>{{ page_data.obj_type }}</option>
+        <option value="Мельзавод">Мельзавод</option>
+        <option value="Крупозавод">Крупозавод</option>
+        <option value="РБ">РБ</option>
+      </select>
+    </div>
+
+    <div class="input-group mb-3">
+      <label class="input-group-text">Год</label>
+      <input
+        type="year"
+        name="year"
+        class="form-control me-1"
+        placeholder="Год"
+        value="{{ page_data.year }}"
+      />
+      <label class="input-group-text">Квартал</label>
+      <select name="quarter" type="text" class="form-select">
+        <option value="{{ page_data.quarter }}" selected hidden>{{ page_data.quarter }}</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+
+    <input class="btn btn-primary" type="submit" value="Найти" />
+  </form>
+
+  <hr />
+
+  <p class="fs-4">
+    Расчет неорганизованных источников выброса за <strong>{{ page_data.quarter }}</strong> квартал <strong>{{ page_data.year }}</strong> года, <strong>{{ page_data.obj_type }}</strong>
+  </p>
+
+  {% if calc_data %}
+  <p class="fs-6 text-end">
+    Квартальный расчет
+  </p>
+  <table class="table table-bordered table-hover mt-3 text-center">
+    <thead>
+      <tr class=" align-middle">
+        <th></th>
+      {% for item in table_data.h_s_types %}
+          <th>{{ item }}</th>
+          {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Валовый выброс,
+          G [т/год]</td>
+        {% for elem in table_data.calc_data %}
+        <td>{{ elem }}</td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>  
+  {% endif %}
+  <p class="fs-6 text-end">
+    Сохраненные записи
+  </p>
+  <table class="table table-bordered table-hover mt-3">
+    <thead>
+      <tr class="text-center align-middle">
+        <th rowspan="2">№ источника<br>выброса</th>
+        <th rowspan="2">Наименование<br>источника выброса</th>
+        <th rowspan="2">Макс. выдел.<br>веществ, М<br>[г/с]</th>
+        <th rowspan="2">Время операции,<br>Т [сек]</th>
+        <th rowspan="1" colspan="4">Кол-во транспортных единиц,<br>М [шт]</th>
+        <th rowspan="2">Кол-во часов<br>работы<br>Т [час/год]</th>
+        <th rowspan="2">Валовый выброс,<br>G [т/год]</th>
+        <th rowspan="2">Загружено,<br>[кг]</th>
+        <th rowspan="2">Вес одной ед.,<br>[кг]</th>
+        <th rowspan="2"></th>
+      </tr>
+      <tr class="text-center">
+        <th>{{ page_data.months.1 }}</th>
+        <th>{{ page_data.months.2 }}</th>
+        <th>{{ page_data.months.3 }}</th>
+        <th>Всего</th>
+      </tr>
+    </thead>
+
+    <tbody class="text-center align-middle">
+      {% for item in table_data.h_s_types %}
+      <tr>
+        <td colspan="13" class="text-start"><i>{{ item }}</i></td>
+      </tr>
+          {% for elem in table_data.data %}
+            {% if elem.harmful_substance_name == item %}
+                <tr class="text-center align-middle">
+                  <td>{{ elem.e_s_number }}</td>
+                  <td>{{ elem.e_s_name }}</td>
+                  <td>{{ elem.M }}</td>
+                  <td>{{ elem.T }}</td>
+                  <td>{{ elem.first_month }}</td>
+                  <td>{{ elem.second_month }}</td>
+                  <td>{{ elem.third_month }}</td>
+                  <td>{{ elem.all }}</td>
+                  <td>{{ elem.Tw }}</td>
+                  <td>{{ elem.G }}</td>
+                  <td>{{ elem.loaded }}</td>
+                  <td>{{ elem.weight }}</td>
+                  <td style="padding-left: 0; padding-right: 0">
+                    <a
+                      href="{% url 'unorganize-waste-update' page_data.obj_type page_data.year page_data.quarter elem.pk %}"
+                      class="btn btn-warning btn-sm me-1"
+                      >Изм</a
+                    >
+                    <a
+                      href="{% url 'unorganize-waste-delete' elem.pk %}"
+                      class="btn btn-danger btn-sm"
+                      >Удл</a
+                    >
+                  </td>
+                </tr>
+              {% endif %}
+          {% endfor %}
+
+        {% endfor %}
+    </tbody>
+  </table>
+
+  <a
+    href="{% url 'unorganize-waste-create' page_data.obj_type page_data.year page_data.quarter %}"
+    class="btn btn-success"
+    >Добавить в эту таблицу</a
+  >
+  <a href="{% url 'excel-download-unorganize' page_data.obj_type page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel</a>
+
+</div>
+
+<style>
+  th, tr, td {
+    width: max-content;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .table>:not(caption)>*>* {
+    padding: 5px;
+  }
+</style>
+{% endblock content %}

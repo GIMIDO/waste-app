@@ -49,3 +49,45 @@ class WeldingWaste(models.Model):
 
     def __str__(self) -> str:
         return f'{self.mark} {self.emission} [{self.year} {self.quarter}]'
+
+
+class UnOrganizeWaste(models.Model):
+
+    OBJ_TYPE = (
+        ('Мельзавод', 'Мельзавод'),
+        ('Крупозавод', 'Крупозавод'),
+        ('РБ', 'РБ')
+    )
+
+    H_S_NAME = (
+        ('Пыль зерновая м/з', 'Пыль зерновая м/з'),
+        ('Пыль мучная', 'Пыль мучная'),
+        ('Пыль зерновая к/з', 'Пыль зерновая к/з'),
+        ('Пыль зерновая р/б', 'Пыль зерновая р/б'),
+    )
+
+    obj_type = models.CharField(verbose_name="Объект", choices=OBJ_TYPE, max_length=30)
+    e_s_number = models.CharField(verbose_name="№ источника выброса", max_length=10)
+    e_s_name = models.CharField(verbose_name="Наименование источника выброса", max_length=255)
+
+    harmful_substance_name = models.CharField(verbose_name="Вредное вещество", choices=H_S_NAME, max_length=100)
+
+    M = models.DecimalField(verbose_name="Максимальное выделение веществ [М, г/с]", max_digits=6, decimal_places=3, default=0)
+    T = models.IntegerField(verbose_name="Время операции [T, с]", default=0)
+
+    year = models.IntegerField(verbose_name="Год", default="2022")
+    quarter = models.IntegerField(verbose_name="Квартал", default=1)
+
+    first_month = models.DecimalField(verbose_name="Первый месяц в квартале", max_digits=6, decimal_places=3, default=0)
+    second_month = models.DecimalField(verbose_name="Второй месяц в квартале", max_digits=6, decimal_places=3, default=0)
+    third_month = models.DecimalField(verbose_name="Третий месяц в квартале", max_digits=6, decimal_places=3, default=0)
+    all = models.DecimalField(verbose_name="Всего", max_digits=6, decimal_places=3, default=0)
+
+    Tw = models.DecimalField(verbose_name="Кол-во часов работы [T, час/год]", max_digits=6, decimal_places=3, default=0)
+    G = models.DecimalField(verbose_name="Валовый выброс [T, т/год]", max_digits=6, decimal_places=4, default=0)
+
+    loaded = models.IntegerField(verbose_name="Загружено", default=0)
+    weight = models.IntegerField(verbose_name="Вес одной ед. [кг]", default=0)
+
+    def __str__(self) -> str:
+        return f'[{self.obj_type} {self.e_s_number}] {self.year} {self.quarter}'
