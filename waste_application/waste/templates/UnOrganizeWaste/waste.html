@@ -10,7 +10,7 @@
         <option value="{{ page_data.obj_type }}" selected hidden>{{ page_data.obj_type }}</option>
         <option value="Мельзавод">Мельзавод</option>
         <option value="Крупозавод">Крупозавод</option>
-        <option value="Р/Б">Р/Б</option>
+        <option value="РБ">РБ</option>
       </select>
     </div>
 
@@ -24,13 +24,13 @@
         value="{{ page_data.year }}"
       />
       <label class="input-group-text">Квартал</label>
-      <input
-        type="number"
-        name="quarter"
-        class="form-control me-1"
-        placeholder="Квартал"
-        value="{{ page_data.quarter }}"
-      />
+      <select name="quarter" type="text" class="form-select">
+        <option value="{{ page_data.quarter }}" selected hidden>{{ page_data.quarter }}</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
     </div>
 
     <input class="btn btn-primary" type="submit" value="Найти" />
@@ -42,6 +42,7 @@
     Расчет неорганизованных источников выброса за <strong>{{ page_data.quarter }}</strong> квартал <strong>{{ page_data.year }}</strong> года, <strong>{{ page_data.obj_type }}</strong>
   </p>
 
+  {% if calc_data %}
   <p class="fs-6 text-end">
     Квартальный расчет
   </p>
@@ -64,7 +65,7 @@
       </tr>
     </tbody>
   </table>  
-
+  {% endif %}
   <p class="fs-6 text-end">
     Сохраненные записи
   </p>
@@ -112,12 +113,12 @@
                   <td>{{ elem.weight }}</td>
                   <td style="padding-left: 0; padding-right: 0">
                     <a
-                      href=""
+                      href="{% url 'unorganize-waste-update' page_data.obj_type page_data.year page_data.quarter elem.pk %}"
                       class="btn btn-warning btn-sm me-1"
                       >Изм</a
                     >
                     <a
-                      href=""
+                      href="{% url 'unorganize-waste-delete' elem.pk %}"
                       class="btn btn-danger btn-sm"
                       >Удл</a
                     >
@@ -131,11 +132,11 @@
   </table>
 
   <a
-    href=""
+    href="{% url 'unorganize-waste-create' page_data.obj_type page_data.year page_data.quarter %}"
     class="btn btn-success"
     >Добавить в эту таблицу</a
   >
-  <a href="" class="btn btn-primary">Скачать как файл Excel</a>
+  <a href="{% url 'excel-download-unorganize' page_data.obj_type page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel</a>
 
 </div>
 

@@ -377,58 +377,60 @@ class CreateUnOrganizeWasteView(View):
 
     def get(self, request, **kwargs):
 
-        emission_source = kwargs.get('e_s')
         year = kwargs.get('year')
-        quarter = kwargs.get('q')
+        quarter = kwargs.get('quarter')
+        obj_type = kwargs.get('obj_type')
 
-        form = OrganizeWasteForm(emission_source, year, quarter, request.POST or None)
+        form = UnOrganizeWasteForm(obj_type, year, quarter, request.POST or None)
 
         context = {
             'form': form,
-            "e_s": emission_source,
             "year": year,
             "quarter": quarter,
-            "months": get_months(str(quarter))
+            "obj_type": obj_type
         }
 
-        return render(request, 'OrganizeWaste/create.html', context)
+        return render(request, 'UnOrganizeWaste/create.html', context)
 
     def post(self, request, **kwargs):
 
-        emission_source = kwargs.get('e_s')
         year = kwargs.get('year')
-        quarter = kwargs.get('q')
+        quarter = kwargs.get('quarter')
+        obj_type = kwargs.get('obj_type')
 
-        form = OrganizeWasteForm(emission_source, year, quarter, request.POST or None)
+        form = UnOrganizeWasteForm(obj_type, year, quarter, request.POST or None)
 
         if form.is_valid():
-            orgObj = OrganizeWaste.objects.create(
-                emission_source = form.cleaned_data['emission_source'],
-                emission_source_number = form.cleaned_data['emission_source_number'],
-                au_ptu_number = form.cleaned_data['au_ptu_number'],
+            orgObj = UnOrganizeWaste.objects.create(
+                obj_type = form.cleaned_data['obj_type'],
+                e_s_number = form.cleaned_data['e_s_number'],
+                e_s_name = form.cleaned_data['e_s_name'],
                 harmful_substance_name = form.cleaned_data['harmful_substance_name'],
+                M = form.cleaned_data['M'],
+                T = form.cleaned_data['T'],
                 year = form.cleaned_data['year'],
                 quarter = form.cleaned_data['quarter'],
                 first_month = form.cleaned_data['first_month'],
                 second_month = form.cleaned_data['second_month'],
                 third_month = form.cleaned_data['third_month'],
                 all = form.cleaned_data['all'],
-                M = form.cleaned_data['M'],
-                G = form.cleaned_data['G']
+                Tw = form.cleaned_data['Tw'],
+                G = form.cleaned_data['G'],
+                loaded = form.cleaned_data['loaded'],
+                weight = form.cleaned_data['weight'],
             )
             orgObj.save()
 
-            return redirect(f'/organize/waste/main/?type={emission_source}&year={year}&quarter={quarter}')
+            return redirect(f'/unorganize/waste/main/?obj_type={obj_type}&year={year}&quarter={quarter}')
 
         context = {
             'form': form,
-            "e_s": emission_source,
             "year": year,
             "quarter": quarter,
-            "months": get_months(str(quarter))
+            "obj_type": obj_type
         }
 
-        return render(request, 'OrganizeWaste/create.html', context)
+        return render(request, 'UnOrganizeWaste/create.html', context)
 
 
 class UpdateUnOrganizeWasteView(View):
@@ -436,70 +438,68 @@ class UpdateUnOrganizeWasteView(View):
     def get(self, request, **kwargs):
 
         pk = kwargs.get('pk')
-        emission_source = kwargs.get('e_s')
         year = kwargs.get('year')
-        quarter = kwargs.get('q')
+        quarter = kwargs.get('quarter')
+        obj_type = kwargs.get('obj_type')
 
-        obj = OrganizeWaste.objects.get(
+        obj = UnOrganizeWaste.objects.get(
             pk=pk
         )
 
-        form = OrganizeWasteForm(emission_source, year, quarter, request.POST or None, instance=obj)
+        form = UnOrganizeWasteForm(obj_type, year, quarter, request.POST or None, instance=obj)
 
         context = {
             'form': form,
-            "e_s": emission_source,
+            "obj_type": obj_type,
             "year": year,
             "quarter": quarter,
-            "months": get_months(str(quarter))
         }
 
-        return render(request, 'OrganizeWaste/update.html', context)
+        return render(request, 'UnOrganizeWaste/update.html', context)
 
     def post(self, request, **kwargs):
 
         pk = kwargs.get('pk')
-        emission_source = kwargs.get('e_s')
         year = kwargs.get('year')
-        quarter = kwargs.get('q')
+        quarter = kwargs.get('quarter')
+        obj_type = kwargs.get('obj_type')
 
-        obj = OrganizeWaste.objects.get(
+        obj = UnOrganizeWaste.objects.get(
             pk=pk
         )
 
-        form = OrganizeWasteForm(emission_source, year, quarter, request.POST or None, instance=obj)
+        form = UnOrganizeWasteForm(obj_type, year, quarter, request.POST or None, instance=obj)
 
         if form.is_valid():
             form.save()
 
-            return redirect(f'/organize/waste/main/?type={emission_source}&year={year}&quarter={quarter}')
+            return redirect(f'/unorganize/waste/main/?obj_type={obj_type}&year={year}&quarter={quarter}')
 
         context = {
             'form': form,
-            "e_s": emission_source,
+            "obj_type": obj_type,
             "year": year,
             "quarter": quarter,
-            "months": get_months(str(quarter))
         }
 
-        return render(request, 'OrganizeWaste/update.html', context)
+        return render(request, 'UnOrganizeWaste/update.html', context)
 
 
 class DeleteUnOrganizeWasteView(View):
 
     def get(self, request, **kwargs):
         
-        obj = OrganizeWaste.objects.get(pk=(kwargs.get('pk')))
+        obj = UnOrganizeWaste.objects.get(pk=(kwargs.get('pk')))
 
         context = {
             "obj": obj
         }
 
-        return render(request, 'OrganizeWaste/delete.html', context)
+        return render(request, 'UnOrganizeWaste/delete.html', context)
 
     def post(self, request, **kwargs):
 
-        obj = OrganizeWaste.objects.get(pk=(kwargs.get('pk')))
+        obj = UnOrganizeWaste.objects.get(pk=(kwargs.get('pk')))
         obj.delete()
 
-        return redirect(f'/organize/waste/main/?type={obj.emission_source}&year={obj.year}&quarter={obj.quarter}')
+        return redirect(f'/unorganize/waste/main/?obj_type={obj.obj_type}&year={obj.year}&quarter={obj.quarter}')

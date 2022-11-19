@@ -91,3 +91,45 @@ class WeldingWasteForm(forms.ModelForm):
         self.fields['iron_ox_ton'].initial = 0
         self.fields['mg_ton'].initial = 0
         self.fields['hyd_flu_ton'].initial = 0
+
+
+class UnOrganizeWasteForm(forms.ModelForm):
+
+    obj_type = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    year = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    quarter = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    all = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Tw = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    G = forms.CharField(disabled=True, widget = forms.HiddenInput())
+
+    class Meta:
+
+        model = UnOrganizeWaste
+        
+        fields = '__all__'
+
+        widgets = {
+            'e_s_number': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number'}),
+            'e_s_name': forms.TextInput(attrs={'class': 'form-control mb-3', 'type':'text'}),
+            'harmful_substance_name': forms.Select(attrs={'class': 'form-control mb-3', 'type':'text'}),
+
+            'M': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
+            'T': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'1', 'min': '0'}), 
+
+            'first_month': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
+            'second_month': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}),
+            'third_month': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type':'number', 'step':'0.001', 'min': '0'}),
+
+            'loaded': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'1', 'min': '0'}), 
+            'weight': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type':'number', 'step':'1', 'min': '0'}), 
+        }
+
+    def __init__(self, obj_type, year, quarter, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['obj_type'].initial = obj_type
+        self.fields['year'].initial = year
+        self.fields['quarter'].initial = quarter
+        self.fields['all'].initial = 0
+        self.fields['Tw'].initial = 0
+        self.fields['G'].initial = 0

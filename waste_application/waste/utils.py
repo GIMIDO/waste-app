@@ -170,9 +170,22 @@ def unorganize_calc_data(data, obj_type):
             return [p_1, p_2]
 
         case "Крупозавод":
-            pass
-        case "Р/Б":
-            pass
+            h_s = ['Пыль зерновая к/з']
+            p_1 = 0
+
+            for elem in data:
+                    p_1 += elem.G
+            
+            return [p_1]
+
+        case "РБ":
+            h_s = ['Пыль зерновая р/б']
+            p_1 = 0
+
+            for elem in data:
+                    p_1 += elem.G
+            
+            return [p_1]
     
 def get_hs(obj_type):
 
@@ -181,6 +194,7 @@ def get_hs(obj_type):
             return ['Пыль зерновая м/з', 'Пыль мучная']
 
         case "Крупозавод":
-            pass
-        case "Р/Б":
-            pass
+            return ['Пыль зерновая к/з']
+
+        case "РБ":
+            return ['Пыль зерновая р/б']

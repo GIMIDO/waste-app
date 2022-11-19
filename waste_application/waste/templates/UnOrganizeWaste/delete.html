@@ -7,7 +7,7 @@
 <form action="" method="post" enctype="multipart/form-data" class="text-center">
   <p class="fs-4 fw-bold">Удаление:</p>
   <p>Вы действительно хотите удалить</p>
-  <p><strong>{{ obj.mark }}</strong>, <strong>{{ obj.year }}</strong> год, <strong>{{ obj.quarter }}</strong> квартал</p>
+  <p>{{ obj.e_s_number }} {{ obj.e_s_name }} <strong>{{ obj.year }}</strong> год, <strong>{{ obj.quarter }}</strong> квартал, {{ obj.obj_type }}</p>
   {% csrf_token %} 
     <input
       class="btn btn-danger"

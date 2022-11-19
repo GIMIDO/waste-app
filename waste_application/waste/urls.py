@@ -21,4 +21,8 @@ urlpatterns = [
     path('welding/excel/<int:year>/', WeldingDownloadExcel.as_view(), name='excel-download-welding'),
 
     path('unorganize/waste/main/', UnOrganizeWasteView.as_view(), name='unorganize-waste-main'),
+    path('unorganize/waste/create/<str:obj_type>/<int:year>/<int:quarter>/', CreateUnOrganizeWasteView.as_view(), name='unorganize-waste-create'),
+    path('unorganize/waste/update/<str:obj_type>/<int:year>/<int:quarter>/<int:pk>/', UpdateUnOrganizeWasteView.as_view(), name='unorganize-waste-update'),
+    path('unorganize/waste/delelte/<int:pk>/', DeleteUnOrganizeWasteView.as_view(), name='unorganize-waste-delete'),
+    path('unorganize/excel/<str:obj_type>/<int:year>/<int:quarter>/', UnOrganizeDownloadExcel.as_view(), name='excel-download-unorganize'),
 ]
