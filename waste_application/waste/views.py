@@ -503,3 +503,46 @@ class DeleteUnOrganizeWasteView(View):
         obj.delete()
 
         return redirect(f'/unorganize/waste/main/?obj_type={obj.obj_type}&year={obj.year}&quarter={obj.quarter}')
+
+
+# --- #
+
+
+class BoilerCarbonWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        if (self.request.GET.get('year')):
+            year = self.request.GET.get('year')
+            quarter = self.request.GET.get('quarter')
+        else:
+            year = '2022'
+            quarter = '1'
+
+
+        data1 = BoilerCarbonOxWaste.objects.filter(
+            year=year,
+            quarter=quarter
+        )
+        data2 = BoilerNitrogenWaste.objects.filter(
+            year=year,
+            quarter=quarter
+        )
+
+        boiler_carbon_waste_calc(data1)
+        boiler_nitrogen_waste_calc(data2)
+
+        context = {
+            'table_data': {
+                'data1': data1,
+                'data2': data2,
+            },
+
+            "page_data": {
+                "year": year,
+                "quarter": quarter,
+                "months": get_boiler_months(quarter),
+            }
+        }
+
+        return render(request, "BoilerWaste/waste.html", context)

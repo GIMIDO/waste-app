@@ -5,3 +5,7 @@ from .models import *
 admin.site.register(OrganizeWaste)
 admin.site.register(WeldingWaste)
 admin.site.register(UnOrganizeWaste)
+
+admin.site.register(BoilerWaste)
+admin.site.register(BoilerCarbonOxWaste)
+admin.site.register(BoilerNitrogenWaste)

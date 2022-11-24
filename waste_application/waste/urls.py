@@ -25,4 +25,6 @@ urlpatterns = [
     path('unorganize/waste/update/<str:obj_type>/<int:year>/<int:quarter>/<int:pk>/', UpdateUnOrganizeWasteView.as_view(), name='unorganize-waste-update'),
     path('unorganize/waste/delelte/<int:pk>/', DeleteUnOrganizeWasteView.as_view(), name='unorganize-waste-delete'),
     path('unorganize/excel/<str:obj_type>/<int:year>/<int:quarter>/', UnOrganizeDownloadExcel.as_view(), name='excel-download-unorganize'),
+
+    path('boiler/waste/main/', BoilerCarbonWasteView.as_view(), name='boiler-waste-main'),
 ]
