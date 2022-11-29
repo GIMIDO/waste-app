@@ -37,7 +37,7 @@ def organize_waste_calc_all(data):
 
     for elem in data:
         elem.all = elem.first_month + elem.second_month + elem.third_month
-        elem.G = round(elem.all * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 5)
+        elem.G = round(elem.all * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
 
         elem.save()
     
@@ -47,6 +47,8 @@ def organize_waste_calc_all_G(data):
 
     for elem in data:
         all_G += elem.G
+
+        elem.G = round(elem.G, 4)
     
     return all_G
 
@@ -55,13 +57,9 @@ def organize_waste_calc_all_G(data):
 def welding_waste_calc(data):
 
     for elem in data:
-        elem.iron_ox_ton = round(elem.emission * elem.iron_ox_kg * decimal.Decimal(0.000001), 5)
-        elem.mg_ton = round(elem.iron_ox_kg * elem.mg_gg * decimal.Decimal(0.000001), 6)
-        elem.hyd_flu_ton = round(elem.iron_ox_kg * elem.hyd_flu_gkg * decimal.Decimal(0.000001), 7)
-
-        elem.iron_ox_ton = round(elem.iron_ox_ton, 4)
-        elem.mg_ton = round(elem.mg_ton, 4)
-        elem.hyd_flu_ton = round(elem.hyd_flu_ton, 4)
+        elem.iron_ox_ton = round(elem.emission * elem.iron_ox_kg * decimal.Decimal(0.000001), 9)
+        elem.mg_ton = round(elem.iron_ox_kg * elem.mg_gg * decimal.Decimal(0.000001), 9)
+        elem.hyd_flu_ton = round(elem.iron_ox_kg * elem.hyd_flu_gkg * decimal.Decimal(0.000001), 9)
 
         elem.save()
 
@@ -110,13 +108,17 @@ def welding_waste_sum_calc(data):
                 year_hf_g += elem.hyd_flu_gkg
                 year_hf_t += elem.hyd_flu_ton
 
+            elem.iron_ox_ton = round(elem.iron_ox_ton, 4)
+            elem.mg_ton = round(elem.mg_ton, 4)
+            elem.hyd_flu_ton = round(elem.hyd_flu_ton, 4)
+
         json_i = {
-                    "s_i_kg": str(sum_iron_ox_kg),
-                    "s_i_t": str(sum_iron_ox_ton),
-                    "s_m_g": str(sum_mg_gg),
-                    "s_m_t": str(sum_mg_ton),
-                    "s_hf_g": str(sum_hyd_flu_gkg),
-                    "s_hf_t": str(sum_hyd_flu_ton)
+                    "s_i_kg": str(round(sum_iron_ox_kg, 4)),
+                    "s_i_t": str(round(sum_iron_ox_ton, 4)),
+                    "s_m_g": str(round(sum_mg_gg, 4)),
+                    "s_m_t": str(round(sum_mg_ton, 4)),
+                    "s_hf_g": str(round(sum_hyd_flu_gkg, 4)),
+                    "s_hf_t": str(round(sum_hyd_flu_ton, 4))
                 }
 
         sum_calc[str(q)] = json_i
@@ -124,12 +126,12 @@ def welding_waste_sum_calc(data):
         sum_iron_ox_kg, sum_iron_ox_ton, sum_mg_gg, sum_mg_ton, sum_hyd_flu_gkg, sum_hyd_flu_ton = 0,0,0,0,0,0
 
     json_y = {
-            "y_i_kg": str(year_i_kg),
-            "y_i_t": str(year_i_t),
-            "y_m_g": str(year_m_g),
-            "y_m_t": str(year_m_t),
-            "y_hf_g": str(year_hf_g),
-            "y_hf_t": str(year_hf_t)
+            "y_i_kg": str(round(year_i_kg, 4)),
+            "y_i_t": str(round(year_i_t, 4)),
+            "y_m_g": str(round(year_m_g, 4)),
+            "y_m_t": str(round(year_m_t, 4)),
+            "y_hf_g": str(round(year_hf_g, 4)),
+            "y_hf_t": str(round(year_hf_t, 4))
         }
     sum_calc["year"] = json_y
 
@@ -144,9 +146,6 @@ def unorganize_waste_calculate(data):
         elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 9)
         elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
 
-        elem.Tw = round(elem.Tw, 4)
-        elem.G = round(elem.G, 4)
-
         elem.save()
 
 def unorganize_calc_data(data, obj_type):
@@ -160,6 +159,9 @@ def unorganize_calc_data(data, obj_type):
                     p_1 += elem.G
                 else:
                     p_2 += elem.G
+
+                elem.Tw = round(elem.Tw, 4)
+                elem.G = round(elem.G, 4)
             
             return [p_1, p_2]
 
@@ -168,8 +170,11 @@ def unorganize_calc_data(data, obj_type):
             p_1 = 0
 
             for elem in data:
-                    p_1 += elem.G
+                p_1 += elem.G
             
+                elem.Tw = round(elem.Tw, 4)
+                elem.G = round(elem.G, 4)
+
             return [p_1]
 
         case "РБ":
@@ -177,8 +182,11 @@ def unorganize_calc_data(data, obj_type):
             p_1 = 0
 
             for elem in data:
-                    p_1 += elem.G
+                p_1 += elem.G
             
+                elem.Tw = round(elem.Tw, 4)
+                elem.G = round(elem.G, 4)
+
             return [p_1]
     
 def get_hs(obj_type):
@@ -204,10 +212,6 @@ def boiler_carbon_waste_calc(data):
         elem.Cco = round(elem.Qh_calc * elem.name.q3 * elem.name.R, 9)
         elem.Mco = round(elem.B * elem.Cco * decimal.Decimal(0.001), 9)
 
-        elem.Qh_calc = round(elem.Qh_calc, 4)
-        elem.Cco = round(elem.Cco, 4)
-        elem.Mco = round(elem.Mco, 4)
-
         elem.save()
 
 def boiler_nitrogen_waste_calc(data):
@@ -219,13 +223,6 @@ def boiler_nitrogen_waste_calc(data):
         elem.Mnox = round(decimal.Decimal(0.001) * elem.B * elem.Q * elem.Knox * elem.name.Bk * elem.name.Bt, 9)
         elem.Mno2 = round(decimal.Decimal(0.8) * elem.Mnox, 9)
         elem.Mno = round(decimal.Decimal(0.13) * elem.Mnox, 9)
-
-        elem.Q = round(elem.Q, 4)
-        elem.Bs = round(elem.Bs, 4)
-        elem.Knox = round(elem.Knox, 4)
-        elem.Mnox = round(elem.Mnox, 4)
-        elem.Mno2 = round(elem.Mno2, 4)
-        elem.Mno = round(elem.Mno, 4)
 
         elem.save()
 
@@ -247,7 +244,12 @@ def boiler_carbon_waste_month(data, months):
             B3 += elem.B
             Mco3 += elem.Mco
 
-    return [[months[0], B1, Mco1], [months[1], B2, Mco2], [months[2], B3, Mco3]]
+        
+        elem.Qh_calc = round(elem.Qh_calc, 4)
+        elem.Cco = round(elem.Cco, 4)
+        elem.Mco = round(elem.Mco, 4)
+
+    return [[months[0], B1, round(Mco1, 4)], [months[1], B2, round(Mco2, 4)], [months[2], B3, round(Mco3, 4)]]
 
 def boiler_nitrogen_waste_month(data, months):
 
@@ -271,4 +273,12 @@ def boiler_nitrogen_waste_month(data, months):
             Mno3 += elem.Mno
             Mno2_3 += elem.Mno2
 
-    return [[months[0], B1, Mno1, Mno2_1], [months[1], B2, Mno2, Mno2_2], [months[2], B3, Mno3, Mno2_3]]
+        
+        elem.Q = round(elem.Q, 4)
+        elem.Bs = round(elem.Bs, 4)
+        elem.Knox = round(elem.Knox, 4)
+        elem.Mnox = round(elem.Mnox, 4)
+        elem.Mno2 = round(elem.Mno2, 4)
+        elem.Mno = round(elem.Mno, 4)
+
+    return [[months[0], B1, round(Mno1), round(Mno2_1)], [months[1], B2, round(Mno2), round(Mno2_2)], [months[2], B3, round(Mno3), round(Mno2_3)]]
