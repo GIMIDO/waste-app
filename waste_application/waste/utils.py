@@ -1,50 +1,35 @@
 import json
 from .models import *
 import decimal
-
-
-# class DictObj(object):
-#     def __init__(self, in_dict:dict):
-#         assert isinstance(in_dict, dict)
-#         for key, val in in_dict.items():
-#             if isinstance(val, (list, tuple)):
-#                setattr(self, key, [DictObj(x) if isinstance(x, dict) else x for x in val])
-#             else:
-#                setattr(self, key, DictObj(val) if isinstance(val, dict) else val)
+import math
 
 
 def get_months(quarter):
     
     if (quarter == '1'):
-        return {
-            '1': 'Январь',
-            '2': 'Февраль',
-            '3': 'Март'
-        }
+        return {'1': 'Январь','2': 'Февраль','3': 'Март'}
     elif (quarter == '2'):
-        return {
-            '1': 'Апрель',
-            '2': 'Май',
-            '3': 'Июнь'
-        }
+        return {'1': 'Апрель','2': 'Май','3': 'Июнь'}
     elif (quarter == '3'):
-        return {
-            '1': 'Июль',
-            '2': 'Август',
-            '3': 'Сентябрь'
-        }
+        return {'1': 'Июль','2': 'Август','3': 'Сентябрь'}
     elif (quarter == '4'):
-        return {
-            '1': 'Октябрь',
-            '2': 'Ноябрь',
-            '3': 'Декабрь'
-        }
+        return {'1': 'Октябрь','2': 'Ноябрь','3': 'Декабрь'}
     else:
-        return {
-            '1': 'Месяц 1',
-            '2': 'Месяц 2',
-            '3': 'Месяц 3'
-        }
+        return {'1': 'Месяц 1','2': 'Месяц 2','3': 'Месяц 3'}
+
+def get_boiler_months(quarter):
+    
+    if (quarter == '1'):
+        return ['Январь', 'Февраль', 'Март']
+    elif (quarter == '2'):
+        return ['Апрель', 'Май', 'Июнь']
+    elif (quarter == '3'):
+        return ['Июль', 'Август', 'Сентябрь']
+    elif (quarter == '4'):
+        return ['Октябрь', 'Ноябрь', 'Декабрь']
+    else:
+        return ['М1','М2','М3']
+
 
 # --- #
 
@@ -53,6 +38,7 @@ def organize_waste_calc_all(data):
     for elem in data:
         elem.all = elem.first_month + elem.second_month + elem.third_month
         elem.G = round(elem.all * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 5)
+
         elem.save()
     
 def organize_waste_calc_all_G(data):
@@ -72,6 +58,11 @@ def welding_waste_calc(data):
         elem.iron_ox_ton = round(elem.emission * elem.iron_ox_kg * decimal.Decimal(0.000001), 5)
         elem.mg_ton = round(elem.iron_ox_kg * elem.mg_gg * decimal.Decimal(0.000001), 6)
         elem.hyd_flu_ton = round(elem.iron_ox_kg * elem.hyd_flu_gkg * decimal.Decimal(0.000001), 7)
+
+        elem.iron_ox_ton = round(elem.iron_ox_ton, 4)
+        elem.mg_ton = round(elem.mg_ton, 4)
+        elem.hyd_flu_ton = round(elem.hyd_flu_ton, 4)
+
         elem.save()
 
 def get_quarters(data):
@@ -150,8 +141,11 @@ def unorganize_waste_calculate(data):
 
     for elem in data:
         elem.all = elem.first_month + elem.second_month + elem.third_month
-        elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 3)
-        elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 4)
+        elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 9)
+        elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
+
+        elem.Tw = round(elem.Tw, 4)
+        elem.G = round(elem.G, 4)
 
         elem.save()
 
@@ -198,3 +192,85 @@ def get_hs(obj_type):
 
         case "РБ":
             return ['Пыль зерновая р/б']
+
+
+# --- #
+
+
+def boiler_carbon_waste_calc(data):
+
+    for elem in data:
+        elem.Qh_calc = round(elem.Qh * elem.name.K * decimal.Decimal(0.001), 9)
+        elem.Cco = round(elem.Qh_calc * elem.name.q3 * elem.name.R, 9)
+        elem.Mco = round(elem.B * elem.Cco * decimal.Decimal(0.001), 9)
+
+        elem.Qh_calc = round(elem.Qh_calc, 4)
+        elem.Cco = round(elem.Cco, 4)
+        elem.Mco = round(elem.Mco, 4)
+
+        elem.save()
+
+def boiler_nitrogen_waste_calc(data):
+
+    for elem in data:
+        elem.Q = round(elem.Qh * elem.name.K * decimal.Decimal(0.001), 9)
+        elem.Bs = round(elem.B / (decimal.Decimal(3.6) * elem.T), 9)
+        elem.Knox = round((decimal.Decimal(0.01) * decimal.Decimal(math.sqrt(decimal.Decimal(1.59) * elem.Q * elem.Bs))) + decimal.Decimal(0.03), 9)
+        elem.Mnox = round(decimal.Decimal(0.001) * elem.B * elem.Q * elem.Knox * elem.name.Bk * elem.name.Bt, 9)
+        elem.Mno2 = round(decimal.Decimal(0.8) * elem.Mnox, 9)
+        elem.Mno = round(decimal.Decimal(0.13) * elem.Mnox, 9)
+
+        elem.Q = round(elem.Q, 4)
+        elem.Bs = round(elem.Bs, 4)
+        elem.Knox = round(elem.Knox, 4)
+        elem.Mnox = round(elem.Mnox, 4)
+        elem.Mno2 = round(elem.Mno2, 4)
+        elem.Mno = round(elem.Mno, 4)
+
+        elem.save()
+
+def boiler_carbon_waste_month(data, months):
+
+    B1, B2, B3 = 0, 0, 0
+    Mco1, Mco2, Mco3 = 0, 0, 0
+
+    for elem in data:
+        print(elem.month)
+        if elem.month == months[0]:
+            B1 += elem.B
+            Mco1 += elem.Mco
+
+        elif elem.month == months[1]:
+            B2 += elem.B
+            Mco2 += elem.Mco
+
+        elif elem.month == months[2]:
+            B3 += elem.B
+            Mco3 += elem.Mco
+
+    return [[months[0], B1, Mco1], [months[1], B2, Mco2], [months[2], B3, Mco3]]
+
+def boiler_nitrogen_waste_month(data, months):
+
+    B1, B2, B3 = 0, 0, 0
+    Mno1, Mno2, Mno3 = 0, 0, 0
+    Mno2_1, Mno2_2, Mno2_3 = 0, 0, 0
+
+    for elem in data:
+        print(elem.month)
+        if elem.month == months[0]:
+            B1 += elem.B
+            Mno1 += elem.Mno
+            Mno2_1 += elem.Mno2
+
+        elif elem.month == months[1]:
+            B2 += elem.B
+            Mno2 += elem.Mno
+            Mno2_2 += elem.Mno2
+
+        elif elem.month == months[2]:
+            B3 += elem.B
+            Mno3 += elem.Mno
+            Mno2_3 += elem.Mno2
+
+    return [[months[0], B1, Mno1, Mno2_1], [months[1], B2, Mno2, Mno2_2], [months[2], B3, Mno3, Mno2_3]]

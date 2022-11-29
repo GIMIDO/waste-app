@@ -503,3 +503,289 @@ class DeleteUnOrganizeWasteView(View):
         obj.delete()
 
         return redirect(f'/unorganize/waste/main/?obj_type={obj.obj_type}&year={obj.year}&quarter={obj.quarter}')
+
+
+# --- #
+
+
+class BoilerWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        if (self.request.GET.get('year')):
+            year = self.request.GET.get('year')
+            quarter = self.request.GET.get('quarter')
+        else:
+            year = '2022'
+            quarter = '1'
+
+
+        data1 = BoilerCarbonOxWaste.objects.filter(
+            year=year,
+            quarter=quarter
+        )
+        data2 = BoilerNitrogenWaste.objects.filter(
+            year=year,
+            quarter=quarter
+        )
+
+        months = get_boiler_months(quarter)
+
+        boiler_carbon_waste_calc(data1)
+        boiler_nitrogen_waste_calc(data2)
+
+        context = {
+            'table_data': {
+                'data1': data1,
+                'data2': data2,
+                'sum_carbon': boiler_carbon_waste_month(data1, months),
+                'sum_nitrogen': boiler_nitrogen_waste_month(data2, months),
+            },
+
+            "page_data": {
+                "year": year,
+                "quarter": quarter,
+                "months": months,
+            }
+        }
+
+        return render(request, "BoilerWaste/waste.html", context)
+
+
+class CreateBoilerNitrogenWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        form = BoilerNitrogenWasteForm(year, quarter, request.POST or None)
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+            'description': 'выброс азота диоксида и азота оксида',
+        }
+
+        return render(request, 'BoilerWaste/create.html', context)
+
+    def post(self, request, **kwargs):
+
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        form = BoilerNitrogenWasteForm(year, quarter, request.POST or None)
+
+        if form.is_valid():
+            orgObj = BoilerNitrogenWaste.objects.create(
+                name = form.cleaned_data['name'],
+                quarter = form.cleaned_data['quarter'],
+                month = form.cleaned_data['month'],
+                year = form.cleaned_data['year'],
+                B = form.cleaned_data['B'],
+                Qh = form.cleaned_data['Qh'],
+                T = form.cleaned_data['T'],
+                Q = form.cleaned_data['Q'],
+                Bs = form.cleaned_data['Bs'],
+                Knox = form.cleaned_data['Knox'],
+                Mnox = form.cleaned_data['Mnox'],
+                Mno2 = form.cleaned_data['Mno2'],
+                Mno = form.cleaned_data['Mno'],
+            )
+            orgObj.save()
+
+            return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/create.html', context)
+
+class CreateBoilerCarbonOxWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None)
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+            'description': 'выброс углерода оксида',
+        }
+
+        return render(request, 'BoilerWaste/create.html', context)
+
+    def post(self, request, **kwargs):
+
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None)
+
+        if form.is_valid():
+            orgObj = BoilerCarbonOxWaste.objects.create(
+                name = form.cleaned_data['name'],
+                quarter = form.cleaned_data['quarter'],
+                month = form.cleaned_data['month'],
+                year = form.cleaned_data['year'],
+                B = form.cleaned_data['B'],
+                Qh = form.cleaned_data['Qh'],
+                Qh_calc = form.cleaned_data['Qh_calc'],
+                Cco = form.cleaned_data['Cco'],
+                Mco = form.cleaned_data['Mco'],
+            )
+            orgObj.save()
+
+            return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/create.html', context)
+
+
+class UpdateBoilerNitrogenWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        pk = kwargs.get('pk')
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        obj = BoilerNitrogenWaste.objects.get(
+            pk=pk
+        )
+
+        form = BoilerNitrogenWasteForm(year, quarter, request.POST or None, instance=obj)
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/update.html', context)
+
+    def post(self, request, **kwargs):
+
+        pk = kwargs.get('pk')
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        obj = BoilerNitrogenWaste.objects.get(
+            pk=pk
+        )
+
+        form = BoilerNitrogenWasteForm(year, quarter, request.POST or None, instance=obj)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/update.html', context)
+
+class UpdateBoilerCarbonOxWasteView(View):
+
+    def get(self, request, **kwargs):
+
+        pk = kwargs.get('pk')
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        obj = BoilerCarbonOxWaste.objects.get(
+            pk=pk
+        )
+
+        form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None, instance=obj)
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/update.html', context)
+
+    def post(self, request, **kwargs):
+
+        pk = kwargs.get('pk')
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        obj = BoilerCarbonOxWaste.objects.get(
+            pk=pk
+        )
+
+        form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None, instance=obj)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/update.html', context)
+
+
+class DeleteBoilerNitrogenWasteView(View):
+
+    def get(self, request, **kwargs):
+        
+        obj = BoilerNitrogenWaste.objects.get(pk=(kwargs.get('pk')))
+
+        context = {
+            "obj": obj,
+            "description": 'выброс азота диоксида и азота оксида',
+        }
+
+        return render(request, 'BoilerWaste/delete.html', context)
+
+    def post(self, request, **kwargs):
+
+        obj = BoilerNitrogenWaste.objects.get(pk=(kwargs.get('pk')))
+        obj.delete()
+
+        return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
+
+class DeleteBoilerCarbonOxWasteView(View):
+
+    def get(self, request, **kwargs):
+        
+        obj = BoilerCarbonOxWaste.objects.get(pk=(kwargs.get('pk')))
+
+        context = {
+            "obj": obj,
+            'description' : 'выбросов углерода оксида'
+        }
+
+        return render(request, 'BoilerWaste/delete.html', context)
+
+    def post(self, request, **kwargs):
+
+        obj = BoilerCarbonOxWaste.objects.get(pk=(kwargs.get('pk')))
+        obj.delete()
+
+        return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
