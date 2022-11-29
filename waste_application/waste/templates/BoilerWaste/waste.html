@@ -25,14 +25,15 @@
   </form>
   
   <hr />
-  
+
   <p class="fs-4">
     Валовый выброс углерода оксида за
     <strong>{{ page_data.year }}</strong> год,
     <strong> {{ page_data.quarter }}</strong> квартал
   </p>
   
-  <table class="table table-bordered table-hover mt-3">
+  <table class="table table-bordered table-hover caption-top">
+    <caption class="text-end">Таблица с записями</caption>
     <thead>
       <tr class="text-center align-middle">
         <th></th>
@@ -68,12 +69,12 @@
               <td>{{ elem.Mco }}</td>
               <td style="padding-left: 0; padding-right: 0">
                 <a
-                  href=""
+                  href="{% url 'boiler-carbon-waste-update' page_data.year page_data.quarter elem.pk %}"
                   class="btn btn-warning btn-sm me-1"
                   >Изм</a
                 >
                 <a
-                  href=""
+                  href="{% url 'boiler-carbon-waste-delete' elem.pk %}"
                   class="btn btn-danger btn-sm"
                   >Удл</a
                 >
@@ -85,15 +86,42 @@
 
     </tbody>
   </table>
+  <a
+  href="{% url 'boiler-carbon-waste-create' page_data.year page_data.quarter %}"
+  class="btn btn-success"
+  >Добавить в эту таблицу</a
+>
 
-  
+  <table class="table table-bordered table-hover table-sm w-50 caption-top text-center align-middle">
+    <caption class="text-end">Квартальный расчет</caption>
+    <thead>
+      <tr>
+        <th></th>
+        <th>В,тыс м3</th>
+        <th>М(CO),т/мес</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for elem in table_data.sum_carbon %}
+      <tr>
+        {% for item in elem %}
+        <td>{{ item }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+    </table>  
+
+    <hr class="mt-5"/>
+
   <p class="fs-4 mt-3">
     Валовый выброс азота диоксида и азота оксида за
     <strong>{{ page_data.year }}</strong> год,
     <strong> {{ page_data.quarter }}</strong> квартал
   </p>
   
-  <table class="table table-bordered table-hover mt-3">
+  <table class="table table-bordered table-hover mt-3 caption-top">
+    <caption class="text-end">Таблица с записями</caption>
     <thead>
       <tr class="text-center align-middle">
         <th></th>
@@ -107,13 +135,12 @@
         <th>Мnox,т/год</th>
         <th>βк</th>
         <th>βт</th>
-        <th>М(NO2)</th>
+        <th>М(NO<sub>2</sub>)</th>
         <th>М(NO)</th>
         <th></th>
       </tr>
     </thead>
     
-    <!-- --------------------------------------------------------------- -->
     <tbody>
       {% for item in page_data.months %}
       <tr>
@@ -137,12 +164,12 @@
               <td>{{ elem.Mno }}</td>
               <td style="padding-left: 0; padding-right: 0">
                 <a
-                  href=""
+                  href="{% url 'boiler-nitrogen-waste-update' page_data.year page_data.quarter elem.pk %}"
                   class="btn btn-warning btn-sm me-1"
                   >Изм</a
                 >
                 <a
-                  href=""
+                  href="{% url 'boiler-nitrogen-waste-delete' elem.pk %}"
                   class="btn btn-danger btn-sm"
                   >Удл</a
                 >
@@ -155,11 +182,33 @@
     </tbody>
   </table>
   <a
-    href=""
+    href="{% url 'boiler-nitrogen-waste-create' page_data.year page_data.quarter %}"
     class="btn btn-success"
     >Добавить в эту таблицу</a
   >
-  <a href="" class="btn btn-primary">Скачать как файл Excel</a>
+  <table class="table table-bordered table-hover table-sm w-50 caption-top text-center align-middle">
+    <caption class="text-end">Квартальный расчет</caption>
+    <thead>
+      <tr>
+        <th></th>
+        <th>В,тыс м3</th>
+        <th>М(NO<sub>2</sub>)</th>
+        <th>М(NO)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for elem in table_data.sum_nitrogen %}
+      <tr>
+        {% for item in elem %}
+        <td>{{ item }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+    </table>  
+
+  <br>
+  <a href="" class="btn btn-primary mt-1">Свести в одну таблицу и скачать как файл Excel</a>
 </div>
 
 {% endblock content %}

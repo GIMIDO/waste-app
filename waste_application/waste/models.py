@@ -125,15 +125,14 @@ class BoilerCarbonOxWaste(models.Model):
         ("Декабрь", "Декабрь"),
     )
 
-    name = models.ForeignKey(BoilerWaste, on_delete=models.CASCADE)
+    name = models.ForeignKey(BoilerWaste, on_delete=models.CASCADE, verbose_name='Объект')
     quarter = models.IntegerField(verbose_name="Квартал", default=1)
 
-    # нужно вводить
+    month = models.CharField(verbose_name="Месяц", choices=MONTHS, max_length=10)
+    year = models.IntegerField(verbose_name="Год", default="2022")
+
     B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=6, decimal_places=4, default=0)
     Qh = models.IntegerField(verbose_name="Qн, ккал/м3", default=0)
-
-    year = models.IntegerField(verbose_name="Год", default="2022")
-    month = models.CharField(verbose_name="Месяц", choices=MONTHS, max_length=10)
 
     # рассчитывается
     Qh_calc = models.DecimalField(verbose_name="Qн, МДж/м3", max_digits=6, decimal_places=4, default=0)
@@ -161,16 +160,16 @@ class BoilerNitrogenWaste(models.Model):
         ("Декабрь", "Декабрь"),
     )
 
-    name = models.ForeignKey(BoilerWaste, on_delete=models.CASCADE)
+    name = models.ForeignKey(BoilerWaste, on_delete=models.CASCADE, verbose_name='Объект')
     quarter = models.IntegerField(verbose_name="Квартал", default=1)
 
-    # нужно вводить
-    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=12, decimal_places=9, default=0)
+    month = models.CharField(verbose_name="Месяц", choices=MONTHS, max_length=10)
+    year = models.IntegerField(verbose_name="Год", default="2022")
+
+    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=7, decimal_places=4, default=0)
     Qh = models.IntegerField(verbose_name="Qн, ккал/м3", default=0)
     T = models.IntegerField(verbose_name="T, час", default=0)
 
-    year = models.IntegerField(verbose_name="Год", default="2022")
-    month = models.CharField(verbose_name="Месяц", choices=MONTHS, max_length=10)
 
     # рассчитывается
     Q = models.DecimalField(verbose_name="Q", max_digits=12, decimal_places=9, default=0)

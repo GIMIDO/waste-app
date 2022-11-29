@@ -133,3 +133,76 @@ class UnOrganizeWasteForm(forms.ModelForm):
         self.fields['all'].initial = 0
         self.fields['Tw'].initial = 0
         self.fields['G'].initial = 0
+
+
+class BoilerCarbonOxWasteForm(forms.ModelForm):
+
+    year = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    quarter = forms.CharField(disabled=True, widget = forms.HiddenInput())
+
+    Qh_calc = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Cco = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Mco = forms.CharField(disabled=True, widget = forms.HiddenInput())
+
+    class Meta:
+
+        model = BoilerCarbonOxWaste
+        
+        fields = '__all__'
+
+        widgets = {
+            'name': forms.Select(attrs={'class': 'form-control mb-1', 'type':'text'}),
+            'month': forms.Select(attrs={'class': 'form-control mb-3', 'type':'text'}),
+            'B': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'min': '0', 'step': '0.001'}),
+            'Qh': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type':'number', 'min': '0', 'step': '1'}),
+
+        }
+
+    def __init__(self, year, quarter, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['year'].initial = year
+        self.fields['quarter'].initial = quarter
+        self.fields['Qh_calc'].initial = 0
+        self.fields['Cco'].initial = 0
+        self.fields['Mco'].initial = 0
+
+
+class BoilerNitrogenWasteForm(forms.ModelForm):
+
+    year = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    quarter = forms.CharField(disabled=True, widget = forms.HiddenInput())
+
+    Q = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Bs = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Knox = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Mnox = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Mno2 = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Mno = forms.CharField(disabled=True, widget = forms.HiddenInput())
+
+    class Meta:
+
+        model = BoilerNitrogenWaste
+        
+        fields = '__all__'
+
+        widgets = {
+            'name': forms.Select(attrs={'class': 'form-control mb-1', 'type':'text'}),
+            'month': forms.Select(attrs={'class': 'form-control mb-3', 'type':'text'}),
+            'B': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'min': '0', 'step': '0.001'}),
+            'Qh': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'min': '0', 'step': '1'}),
+            'T': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type':'number', 'min': '0', 'step': '1'}),
+
+        }
+
+    def __init__(self, year, quarter, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['year'].initial = year
+        self.fields['quarter'].initial = quarter
+        self.fields['Q'].initial = 0
+        self.fields['Bs'].initial = 0
+        self.fields['Knox'].initial = 0
+        self.fields['Mnox'].initial = 0
+        self.fields['Mno2'].initial = 0
+        self.fields['Mno'].initial = 0

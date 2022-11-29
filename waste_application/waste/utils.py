@@ -228,3 +228,49 @@ def boiler_nitrogen_waste_calc(data):
         elem.Mno = round(elem.Mno, 4)
 
         elem.save()
+
+def boiler_carbon_waste_month(data, months):
+
+    B1, B2, B3 = 0, 0, 0
+    Mco1, Mco2, Mco3 = 0, 0, 0
+
+    for elem in data:
+        print(elem.month)
+        if elem.month == months[0]:
+            B1 += elem.B
+            Mco1 += elem.Mco
+
+        elif elem.month == months[1]:
+            B2 += elem.B
+            Mco2 += elem.Mco
+
+        elif elem.month == months[2]:
+            B3 += elem.B
+            Mco3 += elem.Mco
+
+    return [[months[0], B1, Mco1], [months[1], B2, Mco2], [months[2], B3, Mco3]]
+
+def boiler_nitrogen_waste_month(data, months):
+
+    B1, B2, B3 = 0, 0, 0
+    Mno1, Mno2, Mno3 = 0, 0, 0
+    Mno2_1, Mno2_2, Mno2_3 = 0, 0, 0
+
+    for elem in data:
+        print(elem.month)
+        if elem.month == months[0]:
+            B1 += elem.B
+            Mno1 += elem.Mno
+            Mno2_1 += elem.Mno2
+
+        elif elem.month == months[1]:
+            B2 += elem.B
+            Mno2 += elem.Mno
+            Mno2_2 += elem.Mno2
+
+        elif elem.month == months[2]:
+            B3 += elem.B
+            Mno3 += elem.Mno
+            Mno2_3 += elem.Mno2
+
+    return [[months[0], B1, Mno1, Mno2_1], [months[1], B2, Mno2, Mno2_2], [months[2], B3, Mno3, Mno2_3]]
