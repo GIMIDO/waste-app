@@ -235,7 +235,6 @@ def boiler_carbon_waste_month(data, months):
     Mco1, Mco2, Mco3 = 0, 0, 0
 
     for elem in data:
-        print(elem.month)
         if elem.month == months[0]:
             B1 += elem.B
             Mco1 += elem.Mco
@@ -257,7 +256,6 @@ def boiler_nitrogen_waste_month(data, months):
     Mno2_1, Mno2_2, Mno2_3 = 0, 0, 0
 
     for elem in data:
-        print(elem.month)
         if elem.month == months[0]:
             B1 += elem.B
             Mno1 += elem.Mno

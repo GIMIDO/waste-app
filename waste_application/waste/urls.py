@@ -7,6 +7,8 @@ from .excel_creator import *
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     # --- --- ---
     path('organize/waste/main/', OrganizeWasteView.as_view(), name='organize-waste-main'),
     path('organize/waste/create/<str:e_s>/<int:year>/<int:q>/', CreateOrganizeWasteView.as_view(), name='organize-waste-create'),

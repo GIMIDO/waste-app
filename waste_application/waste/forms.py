@@ -2,6 +2,31 @@ from django import forms
 from .models import *
 
 
+class LoginForm(forms.Form):
+
+    username = forms.CharField(widget = forms.TextInput(attrs={'class': 'form-control me-5 w-25'}))
+    password = forms.CharField(widget = forms.PasswordInput(attrs={'class': 'form-control mb-3 w-25'}))
+
+    class Meta:
+        model = User
+
+        fields = '__all__'
+
+    def clean(self):
+        username = self.cleaned_data['username']
+        password = self.cleaned_data['password']
+        if not User.objects.filter(username=username).exists():
+            raise forms.ValidationError(f'Пользователь {username} не найден!')
+        user = User.objects.filter(username=username).first()
+        if user:
+            if not user.check_password(password):
+                raise forms.ValidationError('Неверный пароль!')
+        return self.cleaned_data
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class OrganizeWasteForm(forms.ModelForm):
 
     emission_source = forms.CharField(disabled=True, widget = forms.HiddenInput())

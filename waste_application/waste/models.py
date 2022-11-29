@@ -1,4 +1,8 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 class OrganizeWaste(models.Model):
@@ -100,7 +104,7 @@ class BoilerWaste(models.Model):
     K = models.DecimalField(verbose_name="К", max_digits=5, decimal_places=4, default=4.1868)
 
     q3 = models.DecimalField(verbose_name="q3, %", max_digits=3, decimal_places=2, default=0)
-    R = models.DecimalField(verbose_name="R", max_digits=2, decimal_places=1, default=0)
+    R = models.DecimalField(verbose_name="R", max_digits=3, decimal_places=2, default=0)
 
     Bk = models.DecimalField(verbose_name="Bk", max_digits=3, decimal_places=2, default=0)
     Bt = models.DecimalField(verbose_name="Bt", max_digits=3, decimal_places=2, default=0)
