@@ -283,4 +283,4 @@ def boiler_nitrogen_waste_month(data, months):
         elem.Mno2 = round(elem.Mno2, 4)
         elem.Mno = round(elem.Mno, 4)
 
-    return [[months[0], B1, round(Mno1), round(Mno2_1)], [months[1], B2, round(Mno2), round(Mno2_2)], [months[2], B3, round(Mno3), round(Mno2_3)]]
+    return [[months[0], B1, round(Mno1, 4), round(Mno2_1, 4)], [months[1], B2, round(Mno2, 4), round(Mno2_2, 4)], [months[2], B3, round(Mno3, 4), round(Mno2_3, 4)]]
