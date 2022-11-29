@@ -48,7 +48,7 @@ def organize_waste_calc_all_G(data):
     for elem in data:
         all_G += elem.G
 
-        elem.G = round(elem.G, 4)
+        elem.G = round(elem.G, 5)
     
     return all_G
 
@@ -108,9 +108,9 @@ def welding_waste_sum_calc(data):
                 year_hf_g += elem.hyd_flu_gkg
                 year_hf_t += elem.hyd_flu_ton
 
-            elem.iron_ox_ton = round(elem.iron_ox_ton, 4)
-            elem.mg_ton = round(elem.mg_ton, 4)
-            elem.hyd_flu_ton = round(elem.hyd_flu_ton, 4)
+            elem.iron_ox_ton = round(elem.iron_ox_ton, 5)
+            elem.mg_ton = round(elem.mg_ton, 6)
+            elem.hyd_flu_ton = round(elem.hyd_flu_ton, 7)
 
         json_i = {
                     "s_i_kg": str(round(sum_iron_ox_kg, 4)),
@@ -146,6 +146,8 @@ def unorganize_waste_calculate(data):
         elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 9)
         elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
 
+        elem.all = round(elem.all, 3)
+
         elem.save()
 
 def unorganize_calc_data(data, obj_type):
@@ -160,7 +162,7 @@ def unorganize_calc_data(data, obj_type):
                 else:
                     p_2 += elem.G
 
-                elem.Tw = round(elem.Tw, 4)
+                elem.Tw = round(elem.Tw, 3)
                 elem.G = round(elem.G, 4)
             
             return [p_1, p_2]
@@ -172,7 +174,7 @@ def unorganize_calc_data(data, obj_type):
             for elem in data:
                 p_1 += elem.G
             
-                elem.Tw = round(elem.Tw, 4)
+                elem.Tw = round(elem.Tw, 3)
                 elem.G = round(elem.G, 4)
 
             return [p_1]
@@ -184,7 +186,7 @@ def unorganize_calc_data(data, obj_type):
             for elem in data:
                 p_1 += elem.G
             
-                elem.Tw = round(elem.Tw, 4)
+                elem.Tw = round(elem.Tw, 3)
                 elem.G = round(elem.G, 4)
 
             return [p_1]
