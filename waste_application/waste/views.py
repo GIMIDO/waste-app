@@ -1,21 +1,61 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login, logout
 
 from .utils import *
 from .models import *
 from .forms import *
+from .mixins import *
 
 
-class HomeView(View):
+class HomeView(AuthUserMixin, View):
 
     def get(self, request):
 
         return render(request, "base/base.html")
 
 
+class LoginView(View):
 
-class OrganizeWasteView(View):
+    def get(self, request):
+
+        form = LoginForm(request.POST or None)
+
+        context = {
+            'form': form
+        }
+
+        return render(request, 'base/login.html', context)
+
+    def post(self, request):
+
+        form = LoginForm(request.POST or None)
+
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(username=username, password=password)
+
+            if user:
+                login(request, user)
+
+                return redirect('home')
+
+        context = {
+            'form': form
+        }
+
+        return render(request, 'base/login.html', context)
+
+class LogoutView(View):
+    
+    def get(self, request):
+        logout(request)
+        return redirect('login')
+
+
+class OrganizeWasteView(AuthUserMixin,View):
 
     def get(self, request, **kwargs):
 
@@ -54,7 +94,7 @@ class OrganizeWasteView(View):
         return render(request, "OrganizeWaste/waste.html", context)
 
 
-class CreateOrganizeWasteView(View):
+class CreateOrganizeWasteView(AuthUserMixin,View):
 
     def get(self, request, **kwargs):
 
@@ -112,7 +152,7 @@ class CreateOrganizeWasteView(View):
         return render(request, 'OrganizeWaste/create.html', context)
 
 
-class UpdateOrganizeWasteView(View):
+class UpdateOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -166,7 +206,7 @@ class UpdateOrganizeWasteView(View):
         return render(request, 'OrganizeWaste/update.html', context)
 
 
-class DeleteOrganizeWasteView(View):
+class DeleteOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
         
@@ -189,7 +229,7 @@ class DeleteOrganizeWasteView(View):
 # --- #
 
 
-class WeldingWasteView(View):
+class WeldingWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -220,7 +260,7 @@ class WeldingWasteView(View):
         return render(request, "WeldingWaste/waste.html", context)
 
 
-class CreateWeldingWasteView(View):
+class CreateWeldingWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -266,7 +306,7 @@ class CreateWeldingWasteView(View):
         return render(request, 'WeldingWaste/create.html', context)
 
 
-class UpdateWeldingWasteView(View):
+class UpdateWeldingWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -310,7 +350,7 @@ class UpdateWeldingWasteView(View):
         return render(request, 'WeldingWaste/update.html', context)
 
 
-class DeleteWeldingWasteView(View):
+class DeleteWeldingWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
         
@@ -333,7 +373,7 @@ class DeleteWeldingWasteView(View):
 # --- #
 
 
-class UnOrganizeWasteView(View):
+class UnOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -373,7 +413,7 @@ class UnOrganizeWasteView(View):
         return render(request, "UnOrganizeWaste/waste.html", context)
 
 
-class CreateUnOrganizeWasteView(View):
+class CreateUnOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -433,7 +473,7 @@ class CreateUnOrganizeWasteView(View):
         return render(request, 'UnOrganizeWaste/create.html', context)
 
 
-class UpdateUnOrganizeWasteView(View):
+class UpdateUnOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -485,7 +525,7 @@ class UpdateUnOrganizeWasteView(View):
         return render(request, 'UnOrganizeWaste/update.html', context)
 
 
-class DeleteUnOrganizeWasteView(View):
+class DeleteUnOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
         
@@ -508,7 +548,7 @@ class DeleteUnOrganizeWasteView(View):
 # --- #
 
 
-class BoilerWasteView(View):
+class BoilerWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -552,7 +592,7 @@ class BoilerWasteView(View):
         return render(request, "BoilerWaste/waste.html", context)
 
 
-class CreateBoilerNitrogenWasteView(View):
+class CreateBoilerNitrogenWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -605,7 +645,7 @@ class CreateBoilerNitrogenWasteView(View):
 
         return render(request, 'BoilerWaste/create.html', context)
 
-class CreateBoilerCarbonOxWasteView(View):
+class CreateBoilerCarbonOxWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -655,7 +695,7 @@ class CreateBoilerCarbonOxWasteView(View):
         return render(request, 'BoilerWaste/create.html', context)
 
 
-class UpdateBoilerNitrogenWasteView(View):
+class UpdateBoilerNitrogenWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -702,7 +742,7 @@ class UpdateBoilerNitrogenWasteView(View):
 
         return render(request, 'BoilerWaste/update.html', context)
 
-class UpdateBoilerCarbonOxWasteView(View):
+class UpdateBoilerCarbonOxWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -750,7 +790,7 @@ class UpdateBoilerCarbonOxWasteView(View):
         return render(request, 'BoilerWaste/update.html', context)
 
 
-class DeleteBoilerNitrogenWasteView(View):
+class DeleteBoilerNitrogenWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
         
@@ -770,7 +810,7 @@ class DeleteBoilerNitrogenWasteView(View):
 
         return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
 
-class DeleteBoilerCarbonOxWasteView(View):
+class DeleteBoilerCarbonOxWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
         

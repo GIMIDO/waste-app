@@ -15,23 +15,32 @@
   <body class="mx-5">
 
     <nav class="navbar justify-content-center container my-2">
-      <a class="btn btn-primary ms-2 me-2" href="{% url 'home' %}">Выбрать расчет</a>
-      <a class="btn btn-warning ms-2 me-2" href="http://127.0.0.1:8000/admin/">Админка</a>
+      {% if request.user.is_authenticated %}
+        <a class="btn btn-primary ms-2 me-2" href="{% url 'home' %}">Выбрать расчет</a>
+        <a class="btn btn-danger ms-2 me-2" href="{% url 'logout' %}">Выйти</a>
+      {% endif %}
+      
+      {% if request.user.is_superuser %}
+        <a class="btn btn-warning ms-2 me-2" href="http://127.0.0.1:8000/admin/">Админка</a>
+      {% endif %}
     </nav>
 
     {% block content %}
-    <div class="container w-50">
-      <p>Для дальнейшей работы выберите нужный расчет</p>
+    
+    {% if request.user.is_authenticated %}
+      <div class="container w-50">
+        <p>Для дальнейшей работы выберите нужный расчет</p>
 
-      <a class="btn btn-primary mb-2" href="{% url 'organize-waste-main' %}">Организованные (отходы)</a>
-      <br>
-      <a class="btn btn-primary mb-2" href="{% url 'welding-waste-main' %}">Сварка (отходы)</a>
-      <br>
-      <a class="btn btn-primary mb-2" href="{% url 'unorganize-waste-main' %}">Неорганизованные (отходы)</a>
-      <br>
-      <a class="btn btn-primary mb-2" href="{% url 'boiler-waste-main' %}">Котельные (отходы)</a>
+        <a class="btn btn-primary mb-2" href="{% url 'organize-waste-main' %}">Организованные (отходы)</a>
+        <br>
+        <a class="btn btn-primary mb-2" href="{% url 'welding-waste-main' %}">Сварка (отходы)</a>
+        <br>
+        <a class="btn btn-primary mb-2" href="{% url 'unorganize-waste-main' %}">Неорганизованные (отходы)</a>
+        <br>
+        <a class="btn btn-primary mb-2" href="{% url 'boiler-waste-main' %}">Котельные (отходы)</a>
 
-    </div>
+      </div>
+    {% endif %}
 
     {% endblock %}
 
