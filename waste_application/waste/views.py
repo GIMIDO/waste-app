@@ -80,7 +80,8 @@ class OrganizeWasteView(AuthUserMixin,View):
         context = {
             'table_data': {
                 'data': data,
-                "all_G": organize_waste_calc_all_G(data),
+                'h_s_types': get_hs_o(emission_source),
+                "calc_data": organize_waste_calc_all_G(data, emission_source),
             },
 
             "page_data": {

@@ -26,6 +26,9 @@ class LoginForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields['username'].label = 'Логин'
+        self.fields['password'].label = 'Пароль'
+
 
 class OrganizeWasteForm(forms.ModelForm):
 
@@ -46,7 +49,7 @@ class OrganizeWasteForm(forms.ModelForm):
         widgets = {
             'emission_source_number': forms.TextInput(attrs={'class': 'form-control mb-1', 'type':'number'}),
             'au_ptu_number': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'harmful_substance_name': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'harmful_substance_name': forms.Select(attrs={'class': 'form-control mb-3'}),
             'first_month': forms.TextInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
             'second_month': forms.TextInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}),
             'third_month': forms.TextInput(attrs={'class': 'form-control mb-3', 'type':'number', 'step':'0.001', 'min': '0'}),

@@ -41,7 +41,31 @@
       <p class="fs-4"><strong>{{ page_data.e_s }}</strong>, <strong>{{ page_data.quarter }}</strong> квартал, <strong>{{ page_data.year }}</strong> год</p>
       
       
+  <p class="fs-6 text-end">
+    Квартальный расчет
+  </p>
+  <table class="table table-bordered table-hover mt-3 text-center">
+    <thead>
+      <tr class=" align-middle">
+        <th></th>
+      {% for item in table_data.h_s_types %}
+          <th>{{ item }}</th>
+          {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>G [т/год]</td>
+        {% for elem in table_data.calc_data %}
+        <td>{{ elem }}</td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
 
+  <p class="fs-6 text-end">
+    Сохраненные записи
+  </p>
     <table class="table table-bordered table-hover mt-3">
       <thead>
         <tr class="text-center">
@@ -85,21 +109,10 @@
           {% endfor %}
       </tbody>
 
-      <tfoot>
-        <tr class="text-end">
-          <td colspan="8"><strong>Итого орган. ист. элеватора:</strong></td>
-          <td colspan="1" class="text-center">
-            <strong>
-              {{ table_data.all_G }}
-            </strong>
-          </td>
-          <td></td>
-        </tr>
-      </tfoot>
 
     </table>
     <a href="{% url 'organize-waste-create' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-success">Добавить в эту таблицу</a>
-    <a href="{% url 'excel-download' 'ow' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel</a>
+    <a href="{% url 'excel-download' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel</a>
   </div>
 
     {% endblock content %}
