@@ -36,6 +36,10 @@ class OrganizeDownloadExcel(View):
         else:
             return redirect(f'/organize/waste/main/?type={emission_source}&year={year}&quarter={quarter}')
 
+        h_s_types = get_hs_o(emission_source)
+        calc_data = organize_waste_calc_all_G(data, emission_source)
+        print(calc_data)
+
         NAMES = {
             'Элеватор': 'Elevator',
             'Мельница': 'Mill',
@@ -63,22 +67,26 @@ class OrganizeDownloadExcel(View):
 
         font_style = xlwt.XFStyle()
 
-        for my_row in data:
+        for i in range(len(h_s_types)):
+            for my_row in data:
+                if my_row.harmful_substance_name == h_s_types[i]:
+                    row_num += 1
+                    ws.write(row_num, 0, my_row.emission_source_number, font_style)
+                    ws.write(row_num, 1, my_row.au_ptu_number, font_style)
+                    ws.write(row_num, 2, my_row.harmful_substance_name, font_style)
+
+                    ws.write(row_num, 3, my_row.first_month, font_style)
+                    ws.write(row_num, 4, my_row.second_month, font_style)
+                    ws.write(row_num, 5, my_row.third_month, font_style)
+
+                    ws.write(row_num, 6, my_row.all, font_style)
+                    ws.write(row_num, 7, my_row.M, font_style)
+                    ws.write(row_num, 8, my_row.G, font_style)
+
             row_num += 1
-            ws.write(row_num, 0, my_row.emission_source_number, font_style)
-            ws.write(row_num, 1, my_row.au_ptu_number, font_style)
-            ws.write(row_num, 2, my_row.harmful_substance_name, font_style)
-
-            ws.write(row_num, 3, my_row.first_month, font_style)
-            ws.write(row_num, 4, my_row.second_month, font_style)
-            ws.write(row_num, 5, my_row.third_month, font_style)
-
-            ws.write(row_num, 6, my_row.all, font_style)
-            ws.write(row_num, 7, my_row.M, font_style)
-            ws.write(row_num, 8, my_row.G, font_style)
-        
-        ws.write(row_num + 1, 7, 'Итого орган. ист. элеватора:', font_style)
-        ws.write(row_num + 1, 8, organize_waste_calc_all_G(data), font_style)
+            ws.write(row_num, 7, 'Итого:', font_style)
+            ws.write(row_num, 8, calc_data[i], font_style)
+            i += 1
 
         wb.save(response)
 

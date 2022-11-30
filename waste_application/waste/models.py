@@ -14,10 +14,15 @@ class OrganizeWaste(models.Model):
         ('Фасовка', 'Фасовка')
     )
 
+    SUBSTANCE_CHOICES = (
+        ('Пыль зерновая', 'Пыль зерновая'),
+        ('Твердые суммарно', 'Твердые суммарно')
+    )
+
     emission_source = models.CharField(verbose_name="Источник выбросов", choices=TYPE_CHOICES, max_length=30)
     emission_source_number = models.CharField(verbose_name="№ источника выброса", max_length=10)
     au_ptu_number = models.CharField(verbose_name="№ АУ или ПТУ", max_length=10)
-    harmful_substance_name = models.CharField(verbose_name="Вредное вещество", max_length=100, default="Пыль зерновая")
+    harmful_substance_name = models.CharField(verbose_name="Вредное вещество", choices=SUBSTANCE_CHOICES, max_length=100, default="Пыль зерновая")
 
     year = models.IntegerField(verbose_name="Год", default="2022")
     quarter = models.IntegerField(verbose_name="Квартал", default=1)

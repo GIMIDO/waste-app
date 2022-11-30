@@ -41,16 +41,62 @@ def organize_waste_calc_all(data):
 
         elem.save()
     
-def organize_waste_calc_all_G(data):
+def organize_waste_calc_all_G(data, e_s):
 
     all_G = 0
-
-    for elem in data:
-        all_G += elem.G
-
-        elem.G = round(elem.G, 5)
     
-    return all_G
+    match e_s:
+        case "Элеватор":
+            for elem in data:
+                all_G += elem.G
+                elem.G = round(elem.G, 4)
+    
+            return [round(all_G, 4)]
+
+        case "Мельница":
+            hs = get_hs_o(e_s)
+            all_G2 = 0
+
+            for elem in data:
+                if elem.harmful_substance_name == hs[0]:
+                    all_G += elem.G
+                    elem.G = round(elem.G, 4)
+
+                elif elem.harmful_substance_name == hs[1]:
+                    all_G2 += elem.G
+                    elem.G = round(elem.G, 4)
+    
+            return [round(all_G, 4), round(all_G2, 4)]
+
+        case "Крупозавод":
+            for elem in data:
+                all_G += elem.G
+                elem.G = round(elem.G, 4)
+    
+            return [round(all_G, 4)]
+
+        case "Фасовка":
+            for elem in data:
+                all_G += elem.G
+                elem.G = round(elem.G, 4)
+    
+            return [round(all_G, 4)]
+
+
+def get_hs_o(obj_type):
+
+    match obj_type:
+        case "Элеватор":
+            return ['Пыль зерновая']
+
+        case "Мельница":
+            return ['Пыль зерновая', 'Твердые суммарно']
+
+        case "Крупозавод":
+            return ['Пыль зерновая']
+
+        case "Фасовка":
+            return ['Пыль зерновая']
 
 # --- #
 
@@ -162,7 +208,7 @@ def unorganize_calc_data(data, obj_type):
                 else:
                     p_2 += elem.G
 
-                elem.Tw = round(elem.Tw, 3)
+                elem.Tw = round(elem.Tw, 1)
                 elem.G = round(elem.G, 4)
             
             return [p_1, p_2]
@@ -174,7 +220,7 @@ def unorganize_calc_data(data, obj_type):
             for elem in data:
                 p_1 += elem.G
             
-                elem.Tw = round(elem.Tw, 3)
+                elem.Tw = round(elem.Tw, 1)
                 elem.G = round(elem.G, 4)
 
             return [p_1]
@@ -186,7 +232,7 @@ def unorganize_calc_data(data, obj_type):
             for elem in data:
                 p_1 += elem.G
             
-                elem.Tw = round(elem.Tw, 3)
+                elem.Tw = round(elem.Tw, 1)
                 elem.G = round(elem.G, 4)
 
             return [p_1]
