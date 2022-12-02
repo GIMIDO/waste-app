@@ -38,7 +38,7 @@ class OrganizeDownloadExcel(View):
 
         h_s_types = get_hs_o(emission_source)
         calc_data = organize_waste_calc_all_G(data, emission_source)
-        print(calc_data)
+        # print(calc_data)
 
         NAMES = {
             'Элеватор': 'Elevator',
@@ -280,6 +280,113 @@ class UnOrganizeDownloadExcel(View):
             ws.write(row_num, 10, 'Итого:', font_style)
             ws.write(row_num, 11, calc_data[i], font_style)
             i += 1
+
+        wb.save(response)
+
+        return response
+
+
+class BoilerDownloadExcel(View):
+
+    def get(self, request, **kwargs):
+
+        year = kwargs.get('year')
+        quarter = kwargs.get('quarter')
+
+        dataBT = BoilerWaste.objects.all()
+
+        if not dataBT.exists():
+            return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response.headers['Content-Disposition'] = f'attachment; filename="Boiler_{year}.xls"'
+
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet("sheet1")
+
+        row_num = 0
+
+        for item in dataBT:
+
+            font_style = xlwt.XFStyle()
+            font_style.font.bold = True
+
+            columns = ['', item.name, 'Время']
+            for col_num in range(len(columns)):
+                ws.write(row_num, col_num, columns[col_num], font_style)
+            row_num += 1
+
+            font_style = xlwt.XFStyle()
+
+            columns = ['', 'тыс м3', 'час.', 'CO', 'Азот(1У)N2O', 'Азот(11)']
+            for col_num in range(len(columns)):
+                ws.write(row_num, col_num, columns[col_num], font_style)
+
+            y_B, y_Mco, y_T, y_Mno2, y_Mno = 0,0,0,0,0
+            quarter = 1
+            while(quarter < 5):
+                q_B, q_Mco, q_T, q_Mno2, q_Mno = 0,0,0,0,0
+                
+                font_style = xlwt.XFStyle()
+
+                carbon = BoilerCarbonOxWaste.objects.filter(quarter=quarter, name=item, year=year)
+                nitrogen = BoilerNitrogenWaste.objects.filter(quarter=quarter, name=item, year=year)
+
+                months = get_boiler_months(str(quarter))
+                for elem in months:
+                    row_num += 1
+                    ws.write(row_num, 0, elem, font_style)
+
+                    if carbon.exists():
+                        for dataElem in carbon:
+                            if dataElem.month == elem:
+                                ws.write(row_num, 1, dataElem.B, font_style)
+                                ws.write(row_num, 3, dataElem.Mco, font_style)
+                                q_B += dataElem.B
+                                q_Mco += dataElem.Mco
+                    if nitrogen.exists():
+                        for dataElem in nitrogen:
+                            if dataElem.month == elem:
+                                ws.write(row_num, 2, dataElem.T, font_style)
+                                ws.write(row_num, 4, round(dataElem.Mno2, 4), font_style)
+                                ws.write(row_num, 5, dataElem.Mno, font_style)
+                                q_T += dataElem.T
+                                q_Mno2 += dataElem.Mno2
+                                q_Mno += dataElem.Mno
+
+                row_num += 1
+
+                font_style = xlwt.XFStyle()
+                font_style.font.bold = True
+
+                ws.write(row_num, 0, f'Итого {quarter}кв', font_style)
+                ws.write(row_num, 1, q_B, font_style)
+                ws.write(row_num, 2, q_T, font_style)
+                ws.write(row_num, 3, q_Mco, font_style)
+                ws.write(row_num, 4, round(q_Mno2, 4), font_style)
+                ws.write(row_num, 5, q_Mno, font_style)
+
+                y_B += q_B
+                y_Mco += q_Mco
+                y_T += q_T
+                y_Mno2 += q_Mno2
+                y_Mno += q_Mno
+
+                quarter += 1
+
+            row_num += 1
+
+            font_style = xlwt.XFStyle()
+            font_style.font.bold = True
+
+            ws.write(row_num, 0, 'Всего за год', font_style)
+            ws.write(row_num, 1, y_B, font_style)
+            ws.write(row_num, 2, y_T, font_style)
+            ws.write(row_num, 3, y_Mco, font_style)
+            ws.write(row_num, 4, round(y_Mno2, 4), font_style)
+            ws.write(row_num, 5, y_Mno, font_style)
+
+            row_num += 2
 
         wb.save(response)
 

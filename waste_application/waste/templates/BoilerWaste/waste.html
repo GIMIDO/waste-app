@@ -27,12 +27,12 @@
   <hr />
 
   <p class="fs-4">
-    Валовый выброс углерода оксида за
+    Валовый выброс <strong><u>углерода оксида</u></strong> за
     <strong>{{ page_data.year }}</strong> год,
     <strong> {{ page_data.quarter }}</strong> квартал
   </p>
   
-  <table class="table table-bordered table-hover caption-top">
+  <table class="table table-bordered table-hover caption-top table-sm">
     <caption class="text-end">Таблица с записями</caption>
     <thead>
       <tr class="text-center align-middle">
@@ -92,7 +92,7 @@
   >Добавить в эту таблицу</a
 >
 
-  <table class="table table-bordered table-hover table-sm w-50 caption-top text-center align-middle">
+  <table class="table table-bordered table-hover table-sm w-50 caption-top text-center align-middle table-sm">
     <caption class="text-end">Квартальный расчет</caption>
     <thead>
       <tr>
@@ -115,12 +115,12 @@
     <hr class="mt-5"/>
 
   <p class="fs-4 mt-3">
-    Валовый выброс азота диоксида и азота оксида за
+    Валовый выброс <strong><u>азота диоксида и азота оксида</u></strong> за
     <strong>{{ page_data.year }}</strong> год,
     <strong> {{ page_data.quarter }}</strong> квартал
   </p>
   
-  <table class="table table-bordered table-hover mt-3 caption-top">
+  <table class="table table-bordered table-hover mt-3 caption-top table-sm">
     <caption class="text-end">Таблица с записями</caption>
     <thead>
       <tr class="text-center align-middle">
@@ -186,7 +186,7 @@
     class="btn btn-success"
     >Добавить в эту таблицу</a
   >
-  <table class="table table-bordered table-hover table-sm w-50 caption-top text-center align-middle">
+  <table class="table table-bordered table-hover table-sm w-50 caption-top text-center align-middle table-sm">
     <caption class="text-end">Квартальный расчет</caption>
     <thead>
       <tr>
@@ -208,7 +208,7 @@
     </table>  
 
   <br>
-  <a href="" class="btn btn-primary mt-1">Свести в одну таблицу и скачать как файл Excel</a>
+  <a href="{% url 'excel-download-boiler' page_data.year page_data.quarter %}" class="btn btn-primary mt-1">Скачать файл за {{ page_data.year }} год (Excel)</a>
 </div>
 
 {% endblock content %}

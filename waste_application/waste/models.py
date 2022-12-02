@@ -105,6 +105,7 @@ class UnOrganizeWaste(models.Model):
 class BoilerWaste(models.Model):
 
     name = models.CharField(verbose_name="Название", max_length=100)
+    short_name = models.CharField(verbose_name="Короткое название (для автозаполнения) [5 символов]", max_length=5, null=True)
 
     K = models.DecimalField(verbose_name="К", max_digits=5, decimal_places=4, default=4.1868)
 
@@ -150,7 +151,7 @@ class BoilerCarbonOxWaste(models.Model):
 
 
     def __str__(self) -> str:
-        return f'{self.name.name} [{self.year}/{self.month}]'
+        return f'{self.name.name} [{self.year}/{self.month}/{self.quarter}]'
 
 class BoilerNitrogenWaste(models.Model):
 

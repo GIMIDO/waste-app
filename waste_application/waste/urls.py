@@ -38,5 +38,6 @@ urlpatterns = [
     
     path('boiler/waste/delete/nitrogen/<int:pk>/', DeleteBoilerNitrogenWasteView.as_view(), name='boiler-nitrogen-waste-delete'),
     path('boiler/waste/delete/carbon/<int:pk>/', DeleteBoilerCarbonOxWasteView.as_view(), name='boiler-carbon-waste-delete'),
+    path('boiler/excel/<int:year>/<int:quarter>/', BoilerDownloadExcel.as_view(), name='excel-download-boiler'),
     # --- --- ---
 ]

@@ -159,12 +159,12 @@ def welding_waste_sum_calc(data):
             elem.hyd_flu_ton = round(elem.hyd_flu_ton, 7)
 
         json_i = {
-                    "s_i_kg": str(round(sum_iron_ox_kg, 4)),
-                    "s_i_t": str(round(sum_iron_ox_ton, 4)),
-                    "s_m_g": str(round(sum_mg_gg, 4)),
-                    "s_m_t": str(round(sum_mg_ton, 4)),
-                    "s_hf_g": str(round(sum_hyd_flu_gkg, 4)),
-                    "s_hf_t": str(round(sum_hyd_flu_ton, 4))
+                    "s_i_kg": str(round(sum_iron_ox_kg, 5)),
+                    "s_i_t": str(round(sum_iron_ox_ton, 5)),
+                    "s_m_g": str(round(sum_mg_gg, 5)),
+                    "s_m_t": str(round(sum_mg_ton, 5)),
+                    "s_hf_g": str(round(sum_hyd_flu_gkg, 7)),
+                    "s_hf_t": str(round(sum_hyd_flu_ton, 7))
                 }
 
         sum_calc[str(q)] = json_i
@@ -172,12 +172,12 @@ def welding_waste_sum_calc(data):
         sum_iron_ox_kg, sum_iron_ox_ton, sum_mg_gg, sum_mg_ton, sum_hyd_flu_gkg, sum_hyd_flu_ton = 0,0,0,0,0,0
 
     json_y = {
-            "y_i_kg": str(round(year_i_kg, 4)),
-            "y_i_t": str(round(year_i_t, 4)),
-            "y_m_g": str(round(year_m_g, 4)),
-            "y_m_t": str(round(year_m_t, 4)),
-            "y_hf_g": str(round(year_hf_g, 4)),
-            "y_hf_t": str(round(year_hf_t, 4))
+            "y_i_kg": str(round(year_i_kg, 5)),
+            "y_i_t": str(round(year_i_t, 5)),
+            "y_m_g": str(round(year_m_g, 5)),
+            "y_m_t": str(round(year_m_t, 5)),
+            "y_hf_g": str(round(year_hf_g, 7)),
+            "y_hf_t": str(round(year_hf_t, 7))
         }
     sum_calc["year"] = json_y
 
