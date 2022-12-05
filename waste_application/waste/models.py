@@ -192,3 +192,20 @@ class BoilerNitrogenWaste(models.Model):
     
     def __str__(self) -> str:
         return f'{self.name.name} [{self.year}/{self.month}]'
+
+class BoilerSulfDioxWaste(models.Model):
+    B = models.DecimalField(verbose_name='', max_digits=4, decimal_places=3, default=0)
+    S = models.DecimalField(verbose_name='', max_digits=3, decimal_places=2, default=0)
+    ns1 = models.DecimalField(verbose_name='', max_digits=3, decimal_places=2, default=0)
+    ns2 = models.DecimalField(verbose_name='', max_digits=6, decimal_places=3, default=0)
+    Mso2 = models.DecimalField(verbose_name='', max_digits=5, decimal_places=4, default=0)
+
+    def __str__(self) -> str:
+        return f'[{self.obj_type} {self.e_s_number}] {self.year} {self.quarter}'
+
+class BoilerCarbonBlackWaste(models.Model):
+    B = models.DecimalField(verbose_name='', max_digits=4, decimal_places=3, default=0)
+    nc = models.DecimalField(verbose_name='', max_digits=3, decimal_places=2, default=0)
+    ns1 = models.DecimalField(verbose_name='', max_digits=3, decimal_places=2, default=0)
+    ns2 = models.DecimalField(verbose_name='', max_digits=6, decimal_places=3, default=0)
+    Mso2 = models.DecimalField(verbose_name='', max_digits=5, decimal_places=4, default=0) 
