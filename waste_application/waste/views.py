@@ -55,6 +55,9 @@ class LogoutView(View):
         return redirect('login')
 
 
+# --- #
+
+
 class OrganizeWasteView(AuthUserMixin,View):
 
     def get(self, request, **kwargs):
@@ -569,18 +572,27 @@ class BoilerWasteView(AuthUserMixin, View):
             year=year,
             quarter=quarter
         )
+        data3 = BoilerSulfCarbWaste.objects.filter(
+            year=year,
+            quarter=quarter
+        )
 
         months = get_boiler_months(quarter)
 
         boiler_carbon_waste_calc(data1)
         boiler_nitrogen_waste_calc(data2)
 
+        boiler_CB_SD_calc(data3)
+
         context = {
             'table_data': {
                 'data1': data1,
                 'data2': data2,
+                'data3': data3,
+                
                 'sum_carbon': boiler_carbon_waste_month(data1, months),
                 'sum_nitrogen': boiler_nitrogen_waste_month(data2, months),
+                'sum_CB_SD': boiler_CB_SD_q(data3)
             },
 
             "page_data": {
@@ -695,6 +707,53 @@ class CreateBoilerCarbonOxWasteView(AuthUserMixin, View):
 
         return render(request, 'BoilerWaste/create.html', context)
 
+class CreateBoilerSulfCarbWasteView(AuthUserMixin, View):
+
+    def get(self, request, **kwargs):
+
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        form = BoilerSulfCarbWasteForm(year, quarter, request.POST or None)
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+            'description': 'расчет дизельного топлива и сажи',
+        }
+
+        return render(request, 'BoilerWaste/create.html', context)
+
+    def post(self, request, **kwargs):
+
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        form = BoilerSulfCarbWasteForm(year, quarter, request.POST or None)
+
+        if form.is_valid():
+            orgObj = BoilerSulfCarbWaste.objects.create(
+                name = form.cleaned_data['name'],
+                quarter = form.cleaned_data['quarter'],
+                month = form.cleaned_data['month'],
+                year = form.cleaned_data['year'],
+                B = form.cleaned_data['B'],
+                Mc = form.cleaned_data['Mc'],
+                Mso2 = form.cleaned_data['Mso2'],
+            )
+            orgObj.save()
+
+            return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/create.html', context)
+
 
 class UpdateBoilerNitrogenWasteView(AuthUserMixin, View):
 
@@ -790,6 +849,53 @@ class UpdateBoilerCarbonOxWasteView(AuthUserMixin, View):
 
         return render(request, 'BoilerWaste/update.html', context)
 
+class UpdateBoilerSulfCarbWasteView(AuthUserMixin, View):
+
+    def get(self, request, **kwargs):
+
+        pk = kwargs.get('pk')
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        obj = BoilerSulfCarbWaste.objects.get(
+            pk=pk
+        )
+
+        form = BoilerSulfCarbWasteForm(year, quarter, request.POST or None, instance=obj)
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/update.html', context)
+
+    def post(self, request, **kwargs):
+
+        pk = kwargs.get('pk')
+        year = kwargs.get('year')
+        quarter = kwargs.get('q')
+
+        obj = BoilerSulfCarbWaste.objects.get(
+            pk=pk
+        )
+
+        form = BoilerSulfCarbWasteForm(year, quarter, request.POST or None, instance=obj)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
+
+        context = {
+            'form': form,
+            "year": year,
+            "quarter": quarter,
+        }
+
+        return render(request, 'BoilerWaste/update.html', context)
+
 
 class DeleteBoilerNitrogenWasteView(AuthUserMixin, View):
 
@@ -827,6 +933,26 @@ class DeleteBoilerCarbonOxWasteView(AuthUserMixin, View):
     def post(self, request, **kwargs):
 
         obj = BoilerCarbonOxWaste.objects.get(pk=(kwargs.get('pk')))
+        obj.delete()
+
+        return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
+
+class DeleteBoilerSulfCarbWasteView(AuthUserMixin, View):
+
+    def get(self, request, **kwargs):
+        
+        obj = BoilerSulfCarbWaste.objects.get(pk=(kwargs.get('pk')))
+
+        context = {
+            "obj": obj,
+            'description' : 'расчета дизельного топлива и сажи'
+        }
+
+        return render(request, 'BoilerWaste/delete.html', context)
+
+    def post(self, request, **kwargs):
+
+        obj = BoilerSulfCarbWaste.objects.get(pk=(kwargs.get('pk')))
         obj.delete()
 
         return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')

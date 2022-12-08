@@ -318,19 +318,20 @@ class BoilerDownloadExcel(View):
 
             font_style = xlwt.XFStyle()
 
-            columns = ['', 'тыс м3', 'час.', 'CO', 'Азот(1У)N2O', 'Азот(11)']
+            columns = ['', 'тыс м3', 'час.', 'CO', 'Азот(1У)N2O', 'Азот(11)', 'SО2', 'углер.черный']
             for col_num in range(len(columns)):
                 ws.write(row_num, col_num, columns[col_num], font_style)
 
-            y_B, y_Mco, y_T, y_Mno2, y_Mno = 0,0,0,0,0
+            y_B, y_Mco, y_T, y_Mno2, y_Mno, y_Mc, y_Mso2 = 0,0,0,0,0,0,0
             quarter = 1
             while(quarter < 5):
-                q_B, q_Mco, q_T, q_Mno2, q_Mno = 0,0,0,0,0
+                q_B, q_Mco, q_T, q_Mno2, q_Mno, q_Mc, q_Mso2 = 0,0,0,0,0,0,0
                 
                 font_style = xlwt.XFStyle()
 
                 carbon = BoilerCarbonOxWaste.objects.filter(quarter=quarter, name=item, year=year)
                 nitrogen = BoilerNitrogenWaste.objects.filter(quarter=quarter, name=item, year=year)
+                carb_sulf = BoilerSulfCarbWaste.objects.filter(quarter=quarter, name=item, year=year)
 
                 months = get_boiler_months(str(quarter))
                 for elem in months:
@@ -353,6 +354,13 @@ class BoilerDownloadExcel(View):
                                 q_T += dataElem.T
                                 q_Mno2 += dataElem.Mno2
                                 q_Mno += dataElem.Mno
+                    if carb_sulf.exists():
+                        for dataElem in carb_sulf:
+                            if dataElem.name == item and dataElem.month == elem:
+                                ws.write(row_num, 6, dataElem.Mc, font_style)
+                                ws.write(row_num, 7, dataElem.Mso2, font_style)
+                                q_Mc += dataElem.Mc
+                                q_Mso2 += dataElem.Mso2
 
                 row_num += 1
 
@@ -365,12 +373,16 @@ class BoilerDownloadExcel(View):
                 ws.write(row_num, 3, q_Mco, font_style)
                 ws.write(row_num, 4, round(q_Mno2, 4), font_style)
                 ws.write(row_num, 5, q_Mno, font_style)
+                ws.write(row_num, 6, q_Mc, font_style)
+                ws.write(row_num, 7, q_Mso2, font_style)
 
                 y_B += q_B
                 y_Mco += q_Mco
                 y_T += q_T
                 y_Mno2 += q_Mno2
                 y_Mno += q_Mno
+                y_Mc += q_Mc
+                y_Mso2 += q_Mso2
 
                 quarter += 1
 
@@ -385,6 +397,8 @@ class BoilerDownloadExcel(View):
             ws.write(row_num, 3, y_Mco, font_style)
             ws.write(row_num, 4, round(y_Mno2, 4), font_style)
             ws.write(row_num, 5, y_Mno, font_style)
+            ws.write(row_num, 6, y_Mc, font_style)
+            ws.write(row_num, 7, y_Mso2, font_style)
 
             row_num += 2
 

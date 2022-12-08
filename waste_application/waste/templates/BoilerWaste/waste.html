@@ -207,6 +207,63 @@
     </tbody>
     </table>  
 
+    <hr class="mt-5">
+    <p class="fs-4 mt-3">
+      Расчет <strong><u>дизельного топлива и сажи</u></strong> за
+      <strong>{{ page_data.year }}</strong> год,
+      <strong> {{ page_data.quarter }}</strong> квартал
+    </p>
+
+    <table class="text-center table table-bordered table-hover mt-3 caption-top table-sm w-50">
+      <caption class="text-end">Таблица с записями</caption>
+      <thead class="align-middle">
+        <tr>
+          <th></th>
+          <th>Месяц</th>
+          <th>В,тыс м3</th>
+          <th>Серы диоксид (дизельное топливо)<br>Mso2, т/год</th>
+          <th>Углерод черный (сажа)<br>M c, т/год</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for elem in table_data.data3 %}
+        <tr>
+          <td>{{ elem.name.name }}</td>
+          <td>{{ elem.month }}</td>
+          <td>{{ elem.B }}</td>
+          <td>{{ elem.Mc }}</td>
+          <td>{{ elem.Mso2 }}</td>
+          <td>
+            <a
+              href="{% url 'boiler-sulf_carb-waste-update' page_data.year page_data.quarter elem.pk %}"
+              class="btn btn-warning btn-sm me-1"
+              >Изм</a
+            >
+            <a
+              href="{% url 'boiler-sulf_carb-waste-delete' elem.pk %}"
+              class="btn btn-danger btn-sm"
+              >Удл</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3"></td>
+        {% for item in table_data.sum_CB_SD %}
+          <td class="fw-bold">{{ item }}</td>
+        {% endfor %}
+        <td></td>
+        </tr>
+      </tfoot>
+    </table>
+    <a
+    href="{% url 'boiler-sulf_carb-waste-create' page_data.year page_data.quarter %}"
+    class="btn btn-success"
+    >Добавить в эту таблицу</a
+  >
   <br>
   <a href="{% url 'excel-download-boiler' page_data.year page_data.quarter %}" class="btn btn-primary mt-1">Скачать файл за {{ page_data.year }} год (Excel)</a>
 </div>
