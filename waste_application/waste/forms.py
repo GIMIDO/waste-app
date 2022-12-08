@@ -40,7 +40,6 @@ class OrganizeWasteForm(forms.ModelForm):
     all = forms.CharField(disabled=True, widget = forms.HiddenInput())
     G = forms.CharField(disabled=True, widget = forms.HiddenInput())
 
-
     class Meta:
         model = OrganizeWaste
 
@@ -194,6 +193,35 @@ class BoilerCarbonOxWasteForm(forms.ModelForm):
         self.fields['Qh_calc'].initial = 0
         self.fields['Cco'].initial = 0
         self.fields['Mco'].initial = 0
+
+class BoilerSulfCarbWasteForm(forms.ModelForm):
+
+    year = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    quarter = forms.CharField(disabled=True, widget = forms.HiddenInput())
+
+    Mc = forms.CharField(disabled=True, widget = forms.HiddenInput())
+    Mso2 = forms.CharField(disabled=True, widget = forms.HiddenInput())
+
+    class Meta:
+
+        model = BoilerSulfCarbWaste
+        
+        fields = '__all__'
+
+        widgets = {
+            'name': forms.Select(attrs={'class': 'form-control mb-1', 'type':'text'}),
+            'month': forms.Select(attrs={'class': 'form-control mb-3', 'type':'text'}),
+            'B': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'min': '0', 'step': '0.00001'}),
+
+        }
+
+    def __init__(self, year, quarter, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['year'].initial = year
+        self.fields['quarter'].initial = quarter
+        self.fields['Mc'].initial = 0
+        self.fields['Mso2'].initial = 0
 
 
 class BoilerNitrogenWasteForm(forms.ModelForm):

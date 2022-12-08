@@ -105,6 +105,7 @@ class UnOrganizeWaste(models.Model):
 class BoilerWaste(models.Model):
 
     name = models.CharField(verbose_name="Название", max_length=100)
+    short_name = models.CharField(verbose_name="Короткое название (для автозаполнения) [5 символов]", max_length=5, null=True)
 
     K = models.DecimalField(verbose_name="К", max_digits=5, decimal_places=4, default=4.1868)
 
@@ -150,7 +151,7 @@ class BoilerCarbonOxWaste(models.Model):
 
 
     def __str__(self) -> str:
-        return f'{self.name.name} [{self.year}/{self.month}]'
+        return f'{self.name.name} [{self.year}/{self.month}/{self.quarter}]'
 
 class BoilerNitrogenWaste(models.Model):
 
@@ -179,7 +180,6 @@ class BoilerNitrogenWaste(models.Model):
     Qh = models.IntegerField(verbose_name="Qн, ккал/м3", default=0)
     T = models.IntegerField(verbose_name="T, час", default=0)
 
-
     # рассчитывается
     Q = models.DecimalField(verbose_name="Q", max_digits=12, decimal_places=9, default=0)
     Bs = models.DecimalField(verbose_name="Вs, м3/с", max_digits=11, decimal_places=9, default=0)
@@ -191,3 +191,33 @@ class BoilerNitrogenWaste(models.Model):
     
     def __str__(self) -> str:
         return f'{self.name.name} [{self.year}/{self.month}]'
+
+class BoilerSulfCarbWaste(models.Model):
+
+    MONTHS = (
+        ("Январь", "Январь"),
+        ("Февраль", "Февраль"),
+        ("Март", "Март"),
+        ("Апрель", "Апрель"),
+        ("Май", "Май"),
+        ("Июнь", "Июнь"),
+        ("Июль", "Июль"),
+        ("Август", "Август"),
+        ("Сентябрь", "Сентябрь"),
+        ("Октябрь", "Октябрь"),
+        ("Ноябрь", "Ноябрь"),
+        ("Декабрь", "Декабрь"),
+    )
+
+    name = models.ForeignKey(BoilerWaste, on_delete=models.CASCADE, verbose_name='Объект')
+    
+    quarter = models.IntegerField(verbose_name="Квартал", default=1)
+    month = models.CharField(verbose_name="Месяц", choices=MONTHS, max_length=10)
+    year = models.IntegerField(verbose_name="Год", default="2022")
+    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=8, decimal_places=5, default=0)
+
+    Mso2 = models.DecimalField(verbose_name='Mso2, т/год', max_digits=5, decimal_places=4, default=0)
+    Mc = models.DecimalField(verbose_name='M c, т/год', max_digits=5, decimal_places=4, default=0) 
+
+    def __str__(self) -> str:
+        return f'дизельное топливо / сажа | {self.Mso2} {self.year}'

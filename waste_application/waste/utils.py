@@ -30,7 +30,6 @@ def get_boiler_months(quarter):
     else:
         return ['М1','М2','М3']
 
-
 # --- #
 
 def organize_waste_calc_all(data):
@@ -159,12 +158,12 @@ def welding_waste_sum_calc(data):
             elem.hyd_flu_ton = round(elem.hyd_flu_ton, 7)
 
         json_i = {
-                    "s_i_kg": str(round(sum_iron_ox_kg, 4)),
-                    "s_i_t": str(round(sum_iron_ox_ton, 4)),
-                    "s_m_g": str(round(sum_mg_gg, 4)),
-                    "s_m_t": str(round(sum_mg_ton, 4)),
-                    "s_hf_g": str(round(sum_hyd_flu_gkg, 4)),
-                    "s_hf_t": str(round(sum_hyd_flu_ton, 4))
+                    "s_i_kg": str(round(sum_iron_ox_kg, 5)),
+                    "s_i_t": str(round(sum_iron_ox_ton, 5)),
+                    "s_m_g": str(round(sum_mg_gg, 5)),
+                    "s_m_t": str(round(sum_mg_ton, 5)),
+                    "s_hf_g": str(round(sum_hyd_flu_gkg, 7)),
+                    "s_hf_t": str(round(sum_hyd_flu_ton, 7))
                 }
 
         sum_calc[str(q)] = json_i
@@ -172,12 +171,12 @@ def welding_waste_sum_calc(data):
         sum_iron_ox_kg, sum_iron_ox_ton, sum_mg_gg, sum_mg_ton, sum_hyd_flu_gkg, sum_hyd_flu_ton = 0,0,0,0,0,0
 
     json_y = {
-            "y_i_kg": str(round(year_i_kg, 4)),
-            "y_i_t": str(round(year_i_t, 4)),
-            "y_m_g": str(round(year_m_g, 4)),
-            "y_m_t": str(round(year_m_t, 4)),
-            "y_hf_g": str(round(year_hf_g, 4)),
-            "y_hf_t": str(round(year_hf_t, 4))
+            "y_i_kg": str(round(year_i_kg, 5)),
+            "y_i_t": str(round(year_i_t, 5)),
+            "y_m_g": str(round(year_m_g, 5)),
+            "y_m_t": str(round(year_m_t, 5)),
+            "y_hf_g": str(round(year_hf_g, 7)),
+            "y_hf_t": str(round(year_hf_t, 7))
         }
     sum_calc["year"] = json_y
 
@@ -249,9 +248,7 @@ def get_hs(obj_type):
         case "РБ":
             return ['Пыль зерновая р/б']
 
-
 # --- #
-
 
 def boiler_carbon_waste_calc(data):
 
@@ -271,6 +268,14 @@ def boiler_nitrogen_waste_calc(data):
         elem.Mnox = round(decimal.Decimal(0.001) * elem.B * elem.Q * elem.Knox * elem.name.Bk * elem.name.Bt, 9)
         elem.Mno2 = round(decimal.Decimal(0.8) * elem.Mnox, 9)
         elem.Mno = round(decimal.Decimal(0.13) * elem.Mnox, 9)
+
+        elem.save()
+
+def boiler_CB_SD_calc(data):
+
+    for elem in data:
+        elem.Mso2 = round(decimal.Decimal(0.02) * elem.B * decimal.Decimal(0.4) * (1 - decimal.Decimal(0.02)),4) 
+        elem.Mc = round(decimal.Decimal(0.01) * elem.B * decimal.Decimal(0.02) * decimal.Decimal(42.44 / 32.68),4)
 
         elem.save()
 
@@ -330,3 +335,13 @@ def boiler_nitrogen_waste_month(data, months):
         elem.Mno = round(elem.Mno, 4)
 
     return [[months[0], B1, round(Mno1, 4), round(Mno2_1, 4)], [months[1], B2, round(Mno2, 4), round(Mno2_2, 4)], [months[2], B3, round(Mno3, 4), round(Mno2_3, 4)]]
+
+def boiler_CB_SD_q(data):
+
+    Mc_sum, Mso2_sum = 0,0
+
+    for elem in data:
+        Mc_sum += elem.Mc
+        Mso2_sum += elem.Mso2
+
+    return [Mc_sum, Mso2_sum]
