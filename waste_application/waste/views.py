@@ -956,3 +956,5 @@ class DeleteBoilerSulfCarbWasteView(AuthUserMixin, View):
         obj.delete()
 
         return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
+
+
