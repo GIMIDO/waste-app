@@ -54,6 +54,12 @@ class LogoutView(View):
         logout(request)
         return redirect('login')
 
+class NalogView(View):
+
+    def get(self, request):
+        
+        return render(request, 'base/nalog.html')
+
 
 # --- #
 
@@ -83,8 +89,8 @@ class OrganizeWasteView(AuthUserMixin,View):
         context = {
             'table_data': {
                 'data': data,
-                'h_s_types': get_hs_o(emission_source),
-                "calc_data": organize_waste_calc_all_G(data, emission_source),
+                'h_s_types': get_hs_o(),
+                "calc_data": organize_waste_calc_all_G(data),
             },
 
             "page_data": {
@@ -132,6 +138,8 @@ class CreateOrganizeWasteView(AuthUserMixin,View):
                 emission_source_number = form.cleaned_data['emission_source_number'],
                 au_ptu_number = form.cleaned_data['au_ptu_number'],
                 harmful_substance_name = form.cleaned_data['harmful_substance_name'],
+                operating_mode = form.cleaned_data['operating_mode'],
+                code_ZV = form.cleaned_data['code_ZV'],
                 year = form.cleaned_data['year'],
                 quarter = form.cleaned_data['quarter'],
                 first_month = form.cleaned_data['first_month'],

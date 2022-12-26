@@ -108,7 +108,6 @@
     </table>
 
     <a href="{% url 'excel-download' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel <b><u>{{ page_data.e_s }}</u></b> за {{ page_data.year}} год {{ page_data.quarter}} квартал</a>
-    <a href="{% url 'IRS-excel-download' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-danger">Скачать как файл Excel за {{ page_data.year}} год {{ page_data.quarter}} квартал <b><u>для налоговой</u></b> (ПОД-1)</a>
   </div>
 
     {% endblock content %}

@@ -10,6 +10,10 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    
+    # --- --- --- REPORTS
+    path('report/', NalogView.as_view(), name='report'),
+    path('download/IRS/excel/', IRSOrganizeDownloadExcel.as_view(), name='IRS-excel-download'),
 
     # --- --- --- ОРГАНИЗОВАННЫЕ
     path('organize/waste/main/', OrganizeWasteView.as_view(), name='organize-waste-main'),
@@ -18,7 +22,6 @@ urlpatterns = [
     path('organize/waste/delelte/<int:pk>/', DeleteOrganizeWasteView.as_view(), name='organize-waste-delete'),
 
     path('download/excel/<str:e_s>/<int:year>/<int:q>/', OrganizeDownloadExcel.as_view(), name='excel-download'),
-    path('download/IRS/excel/<str:e_s>/<int:year>/<int:q>/', IRSOrganizeDownloadExcel.as_view(), name='IRS-excel-download'),
 
     # --- --- --- СВАРКА
     path('welding/waste/main/', WeldingWasteView.as_view(), name='welding-waste-main'),

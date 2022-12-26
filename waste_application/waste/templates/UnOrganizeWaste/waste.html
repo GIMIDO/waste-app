@@ -42,33 +42,8 @@
     Расчет неорганизованных источников выброса за <strong>{{ page_data.quarter }}</strong> квартал <strong>{{ page_data.year }}</strong> года, <strong>{{ page_data.obj_type }}</strong>
   </p>
 
-  <p class="fs-6 text-end">
-    Квартальный расчет
-  </p>
-  <table class="table table-bordered table-hover mt-3 text-center">
-    <thead>
-      <tr class=" align-middle">
-        <th></th>
-      {% for item in table_data.h_s_types %}
-          <th>{{ item }}</th>
-          {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Валовый выброс,
-          G [т/год]</td>
-        {% for elem in table_data.calc_data %}
-        <td>{{ elem }}</td>
-        {% endfor %}
-      </tr>
-    </tbody>
-  </table>  
-
-  <p class="fs-6 text-end">
-    Сохраненные записи
-  </p>
-  <table class="table table-bordered table-hover mt-3">
+  <table class="table table-bordered table-hover mt-3 caption-top">
+    <caption>Сохраненные записи</caption>
     <thead>
       <tr class="text-center align-middle">
         <th rowspan="2">№ источника<br>выброса</th>
@@ -130,6 +105,27 @@
     </tbody>
   </table>
 
+  <table class="table table-bordered table-hover mt-3 text-center caption-top w-50">
+    <caption>Квартальный расчет</caption>
+    <thead>
+      <tr class=" align-middle">
+        <th></th>
+      {% for item in table_data.h_s_types %}
+          <th>{{ item }}</th>
+          {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Валовый выброс,
+          G [т/год]</td>
+        {% for elem in table_data.calc_data %}
+        <td>{{ elem }}</td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+  
   <a
     href="{% url 'unorganize-waste-create' page_data.obj_type page_data.year page_data.quarter %}"
     class="btn btn-success"
