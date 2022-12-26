@@ -29,15 +29,22 @@
     
     {% if request.user.is_authenticated %}
       <div class="container w-50">
-        <p>Для дальнейшей работы выберите нужный расчет</p>
+        <hr />
+        <p class="fs-5 fw-bold">Для дальнейшей работы выберите нужный расчет</p>
 
         <a class="btn btn-primary mb-2" href="{% url 'organize-waste-main' %}">Организованные (отходы)</a>
         <br>
+
         <a class="btn btn-primary mb-2" href="{% url 'welding-waste-main' %}">Сварка (отходы)</a>
         <br>
+
         <a class="btn btn-primary mb-2" href="{% url 'unorganize-waste-main' %}">Неорганизованные (отходы)</a>
         <br>
+        
         <a class="btn btn-primary mb-2" href="{% url 'boiler-waste-main' %}">Котельные (отходы)</a>
+        <br>
+        <hr />
+        <a class="btn btn-primary mb-2" href="{% url 'report' %}">Отчеты в налоговую</a>
 
       </div>
     {% endif %}

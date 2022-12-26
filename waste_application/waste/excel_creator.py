@@ -9,18 +9,28 @@ from .utils import *
 from .models import *
 
 
-def get_columns(quarter, toc):
+def get_columns(quarter):
 
     months = get_months(str(quarter))
 
     return ['№ ист.', '№ АУ или ПТУ', 'Вредное вещество', months['1'], months['2'], months['3'], 'Всего', 'М, г/с', 'G, т/год']
+
+def quarter_rim(quarter):
+    match str(quarter):
+        case '1':
+            return 'I'
+        case 2:
+            return 'II'
+        case 3:
+            return 'III'
+        case 4:
+            return 'IV'
 
 
 class OrganizeDownloadExcel(View):
 
     def get(self, request, **kwargs):
 
-        toc = kwargs.get('toc')
         emission_source = kwargs.get('e_s')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
@@ -36,16 +46,7 @@ class OrganizeDownloadExcel(View):
         else:
             return redirect(f'/organize/waste/main/?type={emission_source}&year={year}&quarter={quarter}')
 
-        h_s_types = get_hs_o(emission_source)
-        calc_data = organize_waste_calc_all_G(data, emission_source)
-        # print(calc_data)
-
-        NAMES = {
-            'Элеватор': 'Elevator',
-            'Мельница': 'Mill',
-            'Крупозавод': 'Groats_factory',
-            'Фасовка': 'Packed',
-        }
+        NAMES = {'Элеватор': 'Elevator', 'Мельница': 'Mill', 'Крупозавод': 'Groats_factory', 'Фасовка': 'Packed'}
 
         response = HttpResponse(content_type='application/ms-excel')
         response.headers['Content-Disposition'] = f'attachment; filename="{NAMES[emission_source]}_{year}_{quarter}.xls"'
@@ -60,17 +61,24 @@ class OrganizeDownloadExcel(View):
 
         font_style.font.bold = True
 
-        columns = get_columns(quarter, toc)
+        ws.write(row_num, 0, emission_source, font_style)
+        row_num += 1
+
+        columns = get_columns(quarter)
 
         for col_num in range(len(columns)):
             ws.write(row_num, col_num, columns[col_num], font_style)
 
         font_style = xlwt.XFStyle()
 
-        for i in range(len(h_s_types)):
+        h_s_types = ['Пыль зерновая', 'Твердые суммарно']
+
+        for i in h_s_types:
+            sum = 0
             for my_row in data:
-                if my_row.harmful_substance_name == h_s_types[i]:
+                if my_row.harmful_substance_name == i:
                     row_num += 1
+                    sum += my_row.G
                     ws.write(row_num, 0, my_row.emission_source_number, font_style)
                     ws.write(row_num, 1, my_row.au_ptu_number, font_style)
                     ws.write(row_num, 2, my_row.harmful_substance_name, font_style)
@@ -81,12 +89,12 @@ class OrganizeDownloadExcel(View):
 
                     ws.write(row_num, 6, my_row.all, font_style)
                     ws.write(row_num, 7, my_row.M, font_style)
-                    ws.write(row_num, 8, my_row.G, font_style)
+                    ws.write(row_num, 8, round(my_row.G, 4), font_style)
 
             row_num += 1
-            ws.write(row_num, 7, 'Итого:', font_style)
-            ws.write(row_num, 8, calc_data[i], font_style)
-            i += 1
+            ws.write(row_num, 6, 'Итого:', font_style)
+            ws.write(row_num, 7, i, font_style)
+            ws.write(row_num, 8, round(sum, 4), font_style)
 
         wb.save(response)
 
@@ -401,6 +409,196 @@ class BoilerDownloadExcel(View):
             ws.write(row_num, 7, y_Mso2, font_style)
 
             row_num += 2
+
+        wb.save(response)
+
+        return response
+
+
+class IRSOrganizeDownloadExcel(View):
+
+    def get(self, request, **kwargs):
+
+        year = self.request.GET.get('year')
+        quarter = self.request.GET.get('quarter')
+
+        data = OrganizeWaste.objects.filter(year=year, quarter=quarter)
+
+        if data.exists():
+            pass
+        else:
+            return redirect('report')
+
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet("sheet1")
+
+        # fonts
+        f_s = xlwt.easyxf('font: height 240, name Times New Roman;') # стандартный
+        f_s_b_i = xlwt.easyxf('font: height 240, name Times New Roman, bold 1, italic 1;') # жирный италик
+        f_s_bold_sum = xlwt.easyxf('font: height 240, name Times New Roman, bold 1; align: horiz right;') # для вывода суммы по категории
+        h_s = xlwt.easyxf('align: wrap yes,vert centre, horiz centre; font: height 240, name Times New Roman;') # для хэдэров
+
+        row_num = 0
+
+        def header(row_num, header_count):
+            ws.write(row_num, 0, f'Год {year}', f_s)
+            ws.merge(row_num,row_num,0,1)
+            ws.write(row_num, 2, 'квартал', f_s)
+            ws.write(row_num, 3, quarter_rim(quarter), f_s)
+            ws.write(row_num, 14, f'лист {header_count}', f_s)
+
+            row_num += 2
+
+            ws.write(row_num, 0, 'Источник выбросов', h_s)
+            ws.merge(row_num, row_num, 0, 1)
+            ws.write(row_num+1, 0, '№', h_s)
+            ws.merge(row_num+1, row_num+3, 0, 0)
+            ws.write(row_num+1, 1, 'Номера вентиляционных систем стационарных источнков', h_s)
+            ws.merge(row_num+1, row_num+3, 1, 1)
+
+            ws.write(row_num, 2, 'Режим работы технологического оборудования', h_s)
+            ws.merge(row_num, row_num+3, 2, 2)
+
+            ws.write(row_num, 3, 'Выброс загрязняющего вещества в атмосферный воздух', h_s)
+            ws.merge(row_num, row_num+2, 3, 4)
+            ws.write(row_num+3, 3, 'Наименование или хим.формула ЗВ', h_s)
+            ws.merge(row_num+3, row_num+3, 3, 3)
+            ws.write(row_num+3, 4, 'Код ЗВ', h_s)
+            ws.merge(row_num+3, row_num+3, 4, 4)
+
+            ws.write(row_num, 5, 'Параметры выбросов загрязняющих веществ в атмосферный воздух', h_s)
+            ws.merge(row_num, row_num+1, 5, 14)
+            ws.write(row_num+2, 5, '1 месяц', h_s)
+            ws.merge(row_num+2, row_num+2, 5, 7)
+            ws.write(row_num+2, 8, '2 месяц', h_s)
+            ws.merge(row_num+2, row_num+2, 8, 10)
+            ws.write(row_num+2, 11, '3 месяц', h_s)
+            ws.merge(row_num+2, row_num+2, 11, 13)
+            ws.write(row_num+2, 14, 'квартал', h_s)
+
+            ws.write(row_num+3, 5, 'Значение выброса Вк, г/с', h_s)
+            ws.merge(row_num+3, row_num+3, 5, 5)
+            ws.write(row_num+3, 8, 'Значение выброса Вк, г/с', h_s)
+            ws.merge(row_num+3, row_num+3, 8, 8)
+            ws.write(row_num+3, 11, 'Значение выброса Вк, г/с', h_s)
+            ws.merge(row_num+3, row_num+3, 11, 11)
+
+            ws.write(row_num+3, 6, 'Время работы источников, ч/мес', h_s)
+            ws.merge(row_num+3, row_num+3, 6, 6)
+            ws.write(row_num+3, 9, 'Время работы источников, ч/мес', h_s)
+            ws.merge(row_num+3, row_num+3, 9, 9)
+            ws.write(row_num+3, 12, 'Время работы источников, ч/мес', h_s)
+            ws.merge(row_num+3, row_num+3, 12, 12)
+
+            ws.write(row_num+3, 7, 'Масса выброса  ЗВ, т/мес.', h_s)
+            ws.merge(row_num+3, row_num+3, 7, 7)
+            ws.write(row_num+3, 10, 'Масса выброса  ЗВ, т/мес.', h_s)
+            ws.merge(row_num+3, row_num+3, 10, 10)
+            ws.write(row_num+3, 13, 'Масса выброса  ЗВ, т/мес.', h_s)
+            ws.merge(row_num+3, row_num+3, 13, 13)
+            ws.write(row_num+3, 14, 'Масса выброса  ЗВ, т/мес.', h_s)
+            ws.merge(row_num+3, row_num+3, 14, 14)
+
+            ws.row(row_num).height_mismatch = True
+            ws.row(row_num).height = 34*20
+            ws.row(row_num+1).height_mismatch = True
+            ws.row(row_num+1).height = 29*20
+            ws.row(row_num+3).height_mismatch = True
+            ws.row(row_num+3).height = 88*20
+
+            return row_num
+
+        zerno, solid, header_count = 0,0,1
+        harmf_name = ['Пыль зерновая','Твердые суммарно']
+        names = ['Элеватор','Мельница','Крупозавод','Фасовка']
+
+        for eType in names:
+            t_data = data.filter(emission_source=eType)
+            sum = 0
+
+            if header_count < 4:
+                header(row_num, header_count)
+                row_num += 6
+                header_count += 1
+
+            for h in harmf_name:
+                f_data = t_data.filter(harmful_substance_name=h)
+
+                if f_data.exists():
+
+                    for item in f_data:
+                        item_sum = 0
+                        row_num += 1
+
+                        ws.write(row_num, 0, item.emission_source_number, f_s)
+                        ws.write(row_num, 1, item.au_ptu_number, f_s)
+                        ws.write(row_num, 2, item.operating_mode[0:8], f_s)
+                        ws.write(row_num, 3, item.harmful_substance_name, f_s)
+                        ws.write(row_num, 4, item.code_ZV, f_s)
+                        
+                        ws.write(row_num, 5, item.M, f_s)
+                        ws.write(row_num, 6, item.first_month, f_s_b_i)
+                        calc = item.M * item.first_month * 3600 * decimal.Decimal(0.000001)
+                        item_sum += calc
+                        ws.write(row_num, 7, round(calc, 4), f_s)
+
+                        ws.write(row_num, 8, item.M, f_s)
+                        ws.write(row_num, 9, item.second_month, f_s_b_i)
+                        calc = item.M * item.second_month * 3600 * decimal.Decimal(0.000001)
+                        item_sum += calc
+                        ws.write(row_num, 10, round(calc, 4), f_s)
+
+                        ws.write(row_num, 11, item.M, f_s)
+                        ws.write(row_num, 12, item.third_month, f_s_b_i)
+                        calc = item.M * item.third_month * 3600 * decimal.Decimal(0.000001)
+                        item_sum += calc
+                        ws.write(row_num, 13, round(calc, 4), f_s)
+
+                        ws.write(row_num, 14, round(item_sum, 4), f_s)
+                        sum += item_sum
+
+                        if item.harmful_substance_name == 'Твердые суммарно':
+                            solid += sum
+                        else:
+                            zerno += sum
+
+                    if h == 'Твердые суммарно':
+                        eType = 'Твердые суммарно'
+                    row_num += 1
+                    ws.write(row_num, 10, f'Итого по {eType}', f_s_bold_sum)
+                    ws.merge(row_num, row_num, 10, 13)
+                    ws.write(row_num, 14, round(sum, 4), f_s_bold_sum)
+            if header_count < 4:
+                row_num += 3        
+
+        row_num += 1
+        ws.write(row_num, 1, 'Сумма:', f_s)
+        ws.write(row_num, 2, 'пыль зерновая', f_s)
+        ws.write(row_num, 14, round(zerno, 4), f_s)
+
+        row_num += 1
+        ws.write(row_num, 2, 'твердые суммарно', f_s)
+        ws.write(row_num, 14, round(solid, 4), f_s)
+
+        row_num += 1
+        ws.write(row_num, 2, 'Итого по загрязняющим веществам:', f_s)
+        row_num += 1
+        ws.write(row_num, 2, '3 класса опасности', f_s)
+        ws.write(row_num, 14, round(solid+zerno, 4), f_s)
+
+        row_num += 1
+        ws.write(row_num, 2, 'Проверил', f_s)
+        ws.write(row_num, 4, 'Главный инженер', f_s)
+        ws.write(row_num, 6, '_______________', f_s)
+        ws.write(row_num, 11, 'С. И. Лызо', f_s)
+
+        ws.col(0).width = 6*256
+        ws.col(1).width = 11*256
+        ws.col(2).width = 10*256
+        ws.col(3).width = 15*256
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response.headers['Content-Disposition'] = f'attachment; filename="POD-1_{year}_{quarter}.xls"'
 
         wb.save(response)
 

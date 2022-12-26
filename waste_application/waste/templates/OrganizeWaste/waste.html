@@ -40,33 +40,10 @@
 
       <p class="fs-4"><strong>{{ page_data.e_s }}</strong>, <strong>{{ page_data.quarter }}</strong> квартал, <strong>{{ page_data.year }}</strong> год</p>
       
-      
-  <p class="fs-6 text-end">
-    Квартальный расчет
-  </p>
-  <table class="table table-bordered table-hover mt-3 text-center">
-    <thead>
-      <tr class=" align-middle">
-        <th></th>
-      {% for item in table_data.h_s_types %}
-          <th>{{ item }}</th>
-          {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>G [т/год]</td>
-        {% for elem in table_data.calc_data %}
-        <td>{{ elem }}</td>
-        {% endfor %}
-      </tr>
-    </tbody>
-  </table>
+    <a href="{% url 'organize-waste-create' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-success">Добавить в эту таблицу</a>
 
-  <p class="fs-6 text-end">
-    Сохраненные записи
-  </p>
-    <table class="table table-bordered table-hover mt-3">
+    <table class="table table-bordered table-hover caption-top">
+      <caption class="text-end">Сохраненные записи</caption>
       <thead>
         <tr class="text-center">
           <th>№ ист.</th>
@@ -108,11 +85,29 @@
             </tr>
           {% endfor %}
       </tbody>
-
-
     </table>
-    <a href="{% url 'organize-waste-create' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-success">Добавить в эту таблицу</a>
-    <a href="{% url 'excel-download' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel</a>
+
+    <table class="table table-bordered table-hover mt-3 mb-5 text-center w-50 caption-top">
+      <caption class="text-end">Квартальный расчет</caption>
+      <thead>
+        <tr class=" align-middle">
+          <th></th>
+        {% for item in table_data.h_s_types %}
+            <th>{{ item }}</th>
+            {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>G [т/год]</td>
+          {% for elem in table_data.calc_data %}
+          <td>{{ elem }}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+
+    <a href="{% url 'excel-download' page_data.e_s page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel <b><u>{{ page_data.e_s }}</u></b> за {{ page_data.year}} год {{ page_data.quarter}} квартал</a>
   </div>
 
     {% endblock content %}

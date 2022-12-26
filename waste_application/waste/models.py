@@ -19,10 +19,18 @@ class OrganizeWaste(models.Model):
         ('Твердые суммарно', 'Твердые суммарно')
     )
 
+    OPERATING_CHOICES = {
+        ('Постоянно','Постоянно'),
+        ('Периодически','Периодически')
+    }
+
     emission_source = models.CharField(verbose_name="Источник выбросов", choices=TYPE_CHOICES, max_length=30)
     emission_source_number = models.CharField(verbose_name="№ источника выброса", max_length=10)
     au_ptu_number = models.CharField(verbose_name="№ АУ или ПТУ", max_length=10)
     harmful_substance_name = models.CharField(verbose_name="Вредное вещество", choices=SUBSTANCE_CHOICES, max_length=100, default="Пыль зерновая")
+
+    operating_mode = models.CharField(verbose_name="Режим работы технологического оборудования", choices=OPERATING_CHOICES, max_length=12, default="Периодически")
+    code_ZV = models.CharField(verbose_name="Код ЗВ", max_length=5, default='2937')
 
     year = models.IntegerField(verbose_name="Год", default="2022")
     quarter = models.IntegerField(verbose_name="Квартал", default=1)
@@ -36,7 +44,7 @@ class OrganizeWaste(models.Model):
     G = models.DecimalField(verbose_name="G, т/год", max_digits=8, decimal_places=5, default=0)
 
     def __str__(self) -> str:
-        return f'{self.emission_source} {self.emission_source_number} {self.au_ptu_number} [{self.year} {self.quarter}]'
+        return f'{self.emission_source} {self.emission_source_number} {self.au_ptu_number} {self.harmful_substance_name} [{self.year} {self.quarter}]'
 
 
 class WeldingWaste(models.Model):

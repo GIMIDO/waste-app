@@ -40,62 +40,28 @@ def organize_waste_calc_all(data):
 
         elem.save()
     
-def organize_waste_calc_all_G(data, e_s):
+def organize_waste_calc_all_G(data):
+
 
     all_G = 0
-    
-    match e_s:
-        case "Элеватор":
-            for elem in data:
-                all_G += elem.G
-                elem.G = round(elem.G, 4)
-    
-            return [round(all_G, 4)]
+    all_G2 = 0
+    hs = get_hs_o()
 
-        case "Мельница":
-            hs = get_hs_o(e_s)
-            all_G2 = 0
+    for elem in data:
+        if elem.harmful_substance_name == hs[0]:
+            all_G += elem.G
+            elem.G = round(elem.G, 4)
 
-            for elem in data:
-                if elem.harmful_substance_name == hs[0]:
-                    all_G += elem.G
-                    elem.G = round(elem.G, 4)
+        elif elem.harmful_substance_name == hs[1]:
+            all_G2 += elem.G
+            elem.G = round(elem.G, 4)
 
-                elif elem.harmful_substance_name == hs[1]:
-                    all_G2 += elem.G
-                    elem.G = round(elem.G, 4)
-    
-            return [round(all_G, 4), round(all_G2, 4)]
-
-        case "Крупозавод":
-            for elem in data:
-                all_G += elem.G
-                elem.G = round(elem.G, 4)
-    
-            return [round(all_G, 4)]
-
-        case "Фасовка":
-            for elem in data:
-                all_G += elem.G
-                elem.G = round(elem.G, 4)
-    
-            return [round(all_G, 4)]
+    return [round(all_G, 4), round(all_G2, 4)]
 
 
-def get_hs_o(obj_type):
+def get_hs_o():
+    return ['Пыль зерновая', 'Твердые суммарно']
 
-    match obj_type:
-        case "Элеватор":
-            return ['Пыль зерновая']
-
-        case "Мельница":
-            return ['Пыль зерновая', 'Твердые суммарно']
-
-        case "Крупозавод":
-            return ['Пыль зерновая']
-
-        case "Фасовка":
-            return ['Пыль зерновая']
 
 # --- #
 
