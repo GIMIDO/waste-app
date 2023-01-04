@@ -104,7 +104,11 @@
         {% endfor %}
     </tbody>
   </table>
-
+  <a
+    href="{% url 'unorganize-waste-create' page_data.obj_type page_data.year page_data.quarter %}"
+    class="btn btn-success"
+    >Добавить в эту таблицу</a
+  >
   <table class="table table-bordered table-hover mt-3 text-center caption-top w-50">
     <caption>Квартальный расчет</caption>
     <thead>
@@ -126,11 +130,6 @@
     </tbody>
   </table>
   
-  <a
-    href="{% url 'unorganize-waste-create' page_data.obj_type page_data.year page_data.quarter %}"
-    class="btn btn-success"
-    >Добавить в эту таблицу</a
-  >
   <a href="{% url 'excel-download-unorganize' page_data.obj_type page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel</a>
 
 </div>

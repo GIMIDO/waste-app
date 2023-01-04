@@ -81,6 +81,7 @@ class UnOrganizeWaste(models.Model):
         ('Пыль мучная', 'Пыль мучная'),
         ('Пыль зерновая к/з', 'Пыль зерновая к/з'),
         ('Пыль зерновая р/б', 'Пыль зерновая р/б'),
+        ('фосфин (водород фосфористый)', 'фосфин (водород фосфористый)'),
     )
 
     obj_type = models.CharField(verbose_name="Объект", choices=OBJ_TYPE, max_length=30)
@@ -112,8 +113,14 @@ class UnOrganizeWaste(models.Model):
 
 class BoilerWaste(models.Model):
 
+    FUEL = (
+        ("Газ природ.","Газ природ."),
+        ("Дизтопливо","Дизтопливо")
+    )
     name = models.CharField(verbose_name="Название", max_length=100)
     short_name = models.CharField(verbose_name="Короткое название (для автозаполнения) [5 символов]", max_length=5, null=True)
+    number = models.CharField(verbose_name="Номер источника", max_length=6, default=4)
+    fuel = models.CharField(verbose_name="Наименование топлива, сырья, материалов", choices=FUEL, max_length=20, default="Газ природ.")
 
     K = models.DecimalField(verbose_name="К", max_digits=5, decimal_places=4, default=4.1868)
 

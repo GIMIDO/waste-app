@@ -237,6 +237,7 @@ def boiler_nitrogen_waste_calc(data):
 
         elem.save()
 
+
 def boiler_CB_SD_calc(data):
 
     for elem in data:

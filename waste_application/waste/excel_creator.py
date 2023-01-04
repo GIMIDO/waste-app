@@ -19,7 +19,7 @@ def quarter_rim(quarter):
     match str(quarter):
         case '1':
             return 'I'
-        case 2:
+        case "2":
             return 'II'
         case 3:
             return 'III'
@@ -415,6 +415,230 @@ class BoilerDownloadExcel(View):
         return response
 
 
+# ПОД-2
+class IRS2OrganizeDownloadExcel(View):
+
+    def get(self, request, **kwargs):
+
+        year = self.request.GET.get('year')
+        quarter = self.request.GET.get('quarter')
+
+        data = OrganizeWaste.objects.filter(year=year, quarter=quarter)
+
+        if data.exists():
+            pass
+        else:
+            return redirect('report')
+
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet("sheet1")
+
+        # fonts
+        f_s = xlwt.easyxf('font: height 240, name Times New Roman;') # стандартный
+        f_s_b_i = xlwt.easyxf('font: height 240, name Times New Roman, bold 1, italic 1;') # жирный италик
+        f_s_bold_sum = xlwt.easyxf('font: height 240, name Times New Roman, bold 1; align: horiz right;') # для вывода суммы по категории
+        h_s = xlwt.easyxf('align: wrap yes,vert centre, horiz centre; font: height 240, name Times New Roman;') # для хэдэров
+
+        row_num, header_count = 0, 1
+
+        def header(row_num, header_count):
+            ws.write(row_num, 0, f'Год {year}', f_s)
+            ws.merge(row_num,row_num,0,1)
+            ws.write(row_num, 2, 'квартал', f_s)
+            ws.write(row_num, 3, quarter_rim(quarter), f_s)
+            ws.write(row_num+1, 13, f'лист {header_count}', f_s)
+
+            row_num += 2
+
+            ws.write(row_num, 0, 'Источник выбросов', h_s)
+            ws.merge(row_num, row_num, 0, 1)
+            ws.write(row_num, 2, 'Наименование топлива, сырья, материалов', h_s)
+            ws.merge(row_num, row_num+3, 2, 2)
+            ws.write(row_num+1, 0, '№', h_s)
+            ws.merge(row_num+1, row_num+3, 0, 0)
+            ws.write(row_num+1, 1, 'Номера вентиляционных систем стационарных источнков', h_s)
+            ws.merge(row_num+1, row_num+3, 1, 1)
+
+            ws.write(row_num, 3, 'Выброс загрязняющего вещества в атмосферный воздух', h_s)
+            ws.merge(row_num, row_num+1, 3, 6)
+
+            ws.write(row_num, 7, 'Параметры выбросов загрязняющих веществ в атмосферный воздух', h_s)
+            ws.merge(row_num, row_num, 7, 13)
+            ws.write(row_num+1, 7, '1 месяц', h_s)
+            ws.merge(row_num+1, row_num+1, 7, 8)
+            ws.write(row_num+1, 9, '2 месяц', h_s)
+            ws.merge(row_num+1, row_num+1, 9, 10)
+            ws.write(row_num+1, 11, '3 месяц', h_s)
+            ws.merge(row_num+1, row_num+1, 11, 12)
+            ws.write(row_num+1, 13, 'Квартал', h_s)
+
+            ws.write(row_num+2, 3, 'Hаименование или хим.формула ЗВ', h_s)
+            ws.merge(row_num+2, row_num+3, 3, 3)
+            ws.write(row_num+2, 4, 'Код ЗВ', h_s)
+            ws.merge(row_num+2, row_num+3, 4, 4)
+            ws.write(row_num+2, 5, 'Технологический удельный норматив', h_s)
+            ws.merge(row_num+2, row_num+2, 5, 6)
+            ws.write(row_num+3, 5, 'Значение', h_s)
+            ws.write(row_num+3, 6, 'ед. изм.', h_s)
+
+            ws.write(row_num+2, 7, 'Кол-во израсх. ед. топлива, выпущ. прод. произвед. энергии / мес.', h_s)
+            ws.merge(row_num+2, row_num+3, 7, 7)
+            ws.write(row_num+2, 9, 'Кол-во израсх. ед. топлива, выпущ. прод. произвед. энергии / мес.', h_s)
+            ws.merge(row_num+2, row_num+3, 9, 9)
+            ws.write(row_num+2, 11, 'Кол-во израсх. ед. топлива, выпущ. прод. произвед. энергии / мес.', h_s)
+            ws.merge(row_num+2, row_num+3, 11, 11)
+
+            ws.write(row_num+2, 8, 'Масса выброса ЗВ, т/мес.', h_s)
+            ws.merge(row_num+2, row_num+3, 8, 8)
+            ws.write(row_num+2, 10, 'Масса выброса ЗВ, т/мес.', h_s)
+            ws.merge(row_num+2, row_num+3, 10, 10)
+            ws.write(row_num+2, 12, 'Масса выброса ЗВ, т/мес.', h_s)
+            ws.merge(row_num+2, row_num+3, 12, 12)
+            ws.write(row_num+2, 13, 'Масса выброса ЗВ, т/мес.', h_s)
+            ws.merge(row_num+2, row_num+3, 13, 13)
+
+            for i in range(14):
+                ws.write(row_num+4, i, i+1, h_s)
+
+            ws.row(row_num).height_mismatch = True
+            ws.row(row_num).height = 42*20
+            ws.row(row_num+1).height_mismatch = True
+            ws.row(row_num+1).height = 16*20
+            ws.row(row_num+2).height_mismatch = True
+            ws.row(row_num+2).height = 47*20
+            ws.row(row_num+3).height_mismatch = True
+            ws.row(row_num+3).height = 65*20
+
+
+# -----------------------------------------
+        header(row_num, header_count)
+        row_num += 6
+        header_count += 1
+    # КОТЕЛЬНЫЕ ------------------------
+
+    #####################################################
+    # отдельно проверки на пять веществ (для котельных) #
+    # отдельно проверки на два вещества (для сварки)    #
+    # складывать их в отдельные переменные              #
+    # вывод в конце чтения всех данных                  #
+    #####################################################
+
+        dataBT = BoilerWaste.objects.all()
+        for item in dataBT:
+            carbon = BoilerCarbonOxWaste.objects.filter(quarter=quarter, name=item, year=year)
+            nitrogen = BoilerNitrogenWaste.objects.filter(quarter=quarter, name=item, year=year)
+            
+            if nitrogen.exists() and carbon.exists():
+                months = get_boiler_months(str(quarter))
+                row_num += 1
+                q_Mco, q_Mno2, q_Mno = 0,0,0
+                row_plus = 0
+
+                ws.write(row_num, 0, item.number, f_s)
+                ws.write(row_num, 2, item.fuel, f_s)
+
+                ws.write(row_num, 3, 'Азот (1У) оксид', f_s)
+                ws.write(row_num, 4, 301, f_s)
+                ws.write(row_num+1, 3, 'Азот (11) оксид', f_s)
+                ws.write(row_num+1, 4, 304, f_s)
+                ws.write(row_num+2, 3, 'Углерод оксид', f_s)
+                ws.write(row_num+2, 4, 337, f_s)
+
+                for elem in months:
+                    for dataElem in nitrogen:
+                        if dataElem.month == elem:
+                            ws.write(row_num, 7+row_plus, round(dataElem.B, 4), f_s)
+                            ws.write(row_num, 8+row_plus, round(dataElem.Mno2, 4), f_s)
+                            ws.write(row_num+1, 8+row_plus, round(dataElem.Mno, 4), f_s)
+                            q_Mno += dataElem.Mno
+                            q_Mno2 += dataElem.Mno2
+
+                    for dataElem in carbon:
+                        if dataElem.month == elem:
+                            ws.write(row_num+2, 8+row_plus, round(dataElem.Mco, 4), f_s)
+                            q_Mco += dataElem.Mco
+                    row_plus += 2
+
+                ws.write(row_num, 13, round(q_Mno2, 4), f_s)
+                ws.write(row_num+1, 13, round(q_Mno, 4), f_s)
+                ws.write(row_num+2, 13, round(q_Mco, 4), f_s)
+                row_num += 2
+    # СВАРКА ---------------------------
+        welding = WeldingWaste.objects.filter(quarter=quarter, year=year)
+
+        if welding.exists():
+            row_num += 1
+            ws.write(row_num, 0, 7, f_s)
+            ws.write(row_num, 2, 'Электроды', f_s)
+
+            q_iron, q_mg, q_iron_t, q_mg_t = 0,0,0,0
+            t_iron, t_mg = '',''
+
+            for item in welding:
+                q_iron += item.iron_ox_kg
+                q_mg += item.mg_gg
+
+                q_iron_t += item.iron_ox_ton
+                q_mg_t += item.mg_ton
+
+                t_iron += str(round(item.emission, 2)) + ' '
+                t_mg += str(round(item.mg_gg, 2)) + ' '
+            
+            ws.write(row_num, 3, 'Железа оксид', f_s)
+            ws.write(row_num, 4, 123, f_s)
+            ws.write(row_num, 5, t_iron, f_s)
+            ws.write(row_num, 11, q_iron, f_s)
+            ws.write(row_num, 12, round(q_iron_t, 5), f_s)
+            ws.write(row_num, 13, round(q_iron_t, 5), f_s)
+
+            row_num += 1
+            ws.write(row_num, 3, 'Марганец и его соед.', f_s)
+            ws.write(row_num, 4, 143, f_s)
+            ws.write(row_num, 5, t_mg, f_s)
+            ws.write(row_num, 11, q_mg, f_s)
+            ws.write(row_num, 12, round(q_mg_t, 5), f_s)
+            ws.write(row_num, 13, round(q_mg_t, 5), f_s)
+    # НЕОГРАНИЗОВАННЫЕ -----------------
+        data = UnOrganizeWaste.objects.filter(year=year, quarter=quarter)
+
+        for item in data:
+            if not item.e_s_number == '6028':
+                row_num += 1
+
+                ws.write(row_num, 0, item.e_s_number, f_s)
+                ws.write(row_num, 1, item.e_s_name, f_s)
+                ws.write(row_num, 3, item.harmful_substance_name, f_s)
+                ws.write(row_num, 5, item.M, f_s)
+                ws.write(row_num, 11, round(item.Tw, 1), f_s)
+                ws.write(row_num, 12, item.G, f_s)
+                ws.write(row_num, 13, item.G, f_s)
+    # ПОСЛЕ ----------------------------
+
+# -----------------------------------------
+        ws.col(0).width  = 5*256
+        ws.col(1).width  = 9*256
+        ws.col(2).width  = 12*256
+        ws.col(3).width  = 16*256
+        ws.col(4).width  = 7*256
+        ws.col(5).width  = 10*256
+        ws.col(6).width  = 6*256
+        ws.col(7).width  = 14*256
+        ws.col(8).width  = 10*256
+        ws.col(9).width  = 14*256
+        ws.col(10).width = 10*256
+        ws.col(11).width = 14*256
+        ws.col(12).width = 10*256
+        ws.col(13).width = 10*256
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response.headers['Content-Disposition'] = f'attachment; filename="POD-2_{year}_{quarter}.xls"'
+
+        wb.save(response)
+
+        return response
+
+
+# ПОД-1
 class IRSOrganizeDownloadExcel(View):
 
     def get(self, request, **kwargs):

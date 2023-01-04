@@ -27,7 +27,7 @@
     <input class="btn btn-success" type="submit" value="Скачать ПОД-1" />
   </form>
 
-  <!-- <form action="" method="get" class="">
+  <form action="{% url 'IRS-excel-download2' %}" method="get" class="">
     <p class="fs-6 mb-2">Скачать ПОД-2</p>
     <div class="input-group mb-3">
       <label class="input-group-text">Год</label>
@@ -48,7 +48,7 @@
       </select>
     </div>
 
-    <input class="btn btn-danger" type="submit" value="Скачать ПОД-2" disabled/>
-  </form> -->
+    <input class="btn btn-danger" type="submit" value="Скачать ПОД-2"/>
+  </form>
 </div>
 {% endblock %}
