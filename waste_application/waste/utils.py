@@ -201,6 +201,18 @@ def unorganize_calc_data(data, obj_type):
                 elem.G = round(elem.G, 4)
 
             return [p_1]
+
+        case "Фосфин":
+            h_s = ['фосфин (водород фосфористый)']
+            p_1 = 0
+
+            for elem in data:
+                p_1 += elem.G
+            
+                elem.Tw = round(elem.Tw, 1)
+                elem.G = round(elem.G, 4)
+
+            return [p_1]
     
 def get_hs(obj_type):
 
@@ -213,6 +225,9 @@ def get_hs(obj_type):
 
         case "РБ":
             return ['Пыль зерновая р/б']
+
+        case "Фосфин":
+            return['фосфин (водород фосфористый)']
 
 # --- #
 

@@ -213,6 +213,7 @@ class UnOrganizeDownloadExcel(View):
             'Мельзавод': 'Mill',
             'Крупозавод': 'Groats_factory',
             'РБ': 'R/B',
+            'Фосфин': 'Fosfin',
         }
 
         response = HttpResponse(content_type='application/ms-excel')
@@ -420,27 +421,24 @@ class IRS2OrganizeDownloadExcel(View):
 
     def get(self, request, **kwargs):
 
+        # получение года и квартала
         year = self.request.GET.get('year')
         quarter = self.request.GET.get('quarter')
 
-        data = OrganizeWaste.objects.filter(year=year, quarter=quarter)
-
-        if data.exists():
-            pass
-        else:
-            return redirect('report')
-
+        # создание таблицы
         wb = xlwt.Workbook(encoding='utf-8')
         ws = wb.add_sheet("sheet1")
 
-        # fonts
+        # шрифты
         f_s = xlwt.easyxf('font: height 240, name Times New Roman;') # стандартный
         f_s_b_i = xlwt.easyxf('font: height 240, name Times New Roman, bold 1, italic 1;') # жирный италик
         f_s_bold_sum = xlwt.easyxf('font: height 240, name Times New Roman, bold 1; align: horiz right;') # для вывода суммы по категории
         h_s = xlwt.easyxf('align: wrap yes,vert centre, horiz centre; font: height 240, name Times New Roman;') # для хэдэров
 
+        # установка счетчика строк и счетчика листов
         row_num, header_count = 0, 1
 
+        # формирование хэдэра для таблицы
         def header(row_num, header_count):
             ws.write(row_num, 0, f'Год {year}', f_s)
             ws.merge(row_num,row_num,0,1)
@@ -509,30 +507,34 @@ class IRS2OrganizeDownloadExcel(View):
             ws.row(row_num+3).height_mismatch = True
             ws.row(row_num+3).height = 65*20
 
-
-# -----------------------------------------
+        # вставка хэдера
         header(row_num, header_count)
+        # пропуск строк с учетом хэдера
         row_num += 6
+        # +1 к листу
         header_count += 1
-    # КОТЕЛЬНЫЕ ------------------------
 
-    #####################################################
-    # отдельно проверки на пять веществ (для котельных) #
-    # отдельно проверки на два вещества (для сварки)    #
-    # складывать их в отдельные переменные              #
-    # вывод в конце чтения всех данных                  #
-    #####################################################
-
+    # КОТЕЛЬНЫЕ ---------------------------------------------------------------
+        # получение НАЗВАНИЙ МЕСЯЦЕВ из квартала
+        months = get_boiler_months(str(quarter))
+        # получение ТИПОВ в котельных
         dataBT = BoilerWaste.objects.all()
+        # Общая сумма значений из котельных
+        q_Mno_X, q_Mno2_X, q_Mco_X, q_Mc_X, q_Mso2_X = 0,0,0,0,0
+
         for item in dataBT:
+            # получение записей по ТИПУ из котельных
             carbon = BoilerCarbonOxWaste.objects.filter(quarter=quarter, name=item, year=year)
             nitrogen = BoilerNitrogenWaste.objects.filter(quarter=quarter, name=item, year=year)
-            
-            if nitrogen.exists() and carbon.exists():
-                months = get_boiler_months(str(quarter))
+            carb_sulf = BoilerSulfCarbWaste.objects.filter(quarter=quarter, name=item, year=year)
+
+            # если есть Азот (1У) оксид и Азот (11) оксид
+            if nitrogen.exists():
                 row_num += 1
-                q_Mco, q_Mno2, q_Mno = 0,0,0
-                row_plus = 0
+                # сумма за три месяца
+                q_Mno2, q_Mno, = 0,0
+                # счетчик пропуска колонок
+                col_plus = 0
 
                 ws.write(row_num, 0, item.number, f_s)
                 ws.write(row_num, 2, item.fuel, f_s)
@@ -541,39 +543,102 @@ class IRS2OrganizeDownloadExcel(View):
                 ws.write(row_num, 4, 301, f_s)
                 ws.write(row_num+1, 3, 'Азот (11) оксид', f_s)
                 ws.write(row_num+1, 4, 304, f_s)
-                ws.write(row_num+2, 3, 'Углерод оксид', f_s)
-                ws.write(row_num+2, 4, 337, f_s)
 
+                # запись в три месяца
                 for elem in months:
                     for dataElem in nitrogen:
                         if dataElem.month == elem:
-                            ws.write(row_num, 7+row_plus, round(dataElem.B, 4), f_s)
-                            ws.write(row_num, 8+row_plus, round(dataElem.Mno2, 4), f_s)
-                            ws.write(row_num+1, 8+row_plus, round(dataElem.Mno, 4), f_s)
+                            ws.write(row_num, 7+col_plus, round(dataElem.B, 4), f_s)
+                            ws.write(row_num, 8+col_plus, round(dataElem.Mno2, 4), f_s)
+                            ws.write(row_num+1, 8+col_plus, round(dataElem.Mno, 4), f_s)
+                            # сумма за три месяца
                             q_Mno += dataElem.Mno
                             q_Mno2 += dataElem.Mno2
-
-                    for dataElem in carbon:
-                        if dataElem.month == elem:
-                            ws.write(row_num+2, 8+row_plus, round(dataElem.Mco, 4), f_s)
-                            q_Mco += dataElem.Mco
-                    row_plus += 2
+                    # пропуск колонок
+                    col_plus += 2
 
                 ws.write(row_num, 13, round(q_Mno2, 4), f_s)
                 ws.write(row_num+1, 13, round(q_Mno, 4), f_s)
-                ws.write(row_num+2, 13, round(q_Mco, 4), f_s)
-                row_num += 2
-    # СВАРКА ---------------------------
-        welding = WeldingWaste.objects.filter(quarter=quarter, year=year)
+                # сумма за загрязняющее вещество
+                q_Mno2_X += q_Mno2
+                q_Mno_X += q_Mno
+                row_num += 1
 
+            # если есть Углерод оксид
+            if carbon.exists():
+                row_num += 1
+                # сумма за три месяца
+                q_Mco = 0
+                # счетчик пропуска колонок
+                col_plus = 0
+
+                ws.write(row_num, 3, 'Углерод оксид', f_s)
+                ws.write(row_num, 4, 337, f_s)
+
+                # запись в три месяца
+                for elem in months:
+                    for dataElem in carbon:
+                        if dataElem.month == elem:
+                            ws.write(row_num, 8+col_plus, round(dataElem.Mco, 4), f_s)
+                            # сумма за три месяца
+                            q_Mco += dataElem.Mco
+                    # пропуск колонок
+                    col_plus += 2
+
+                ws.write(row_num, 13, round(q_Mco, 4), f_s)
+                # сумма за загрязняющее вещество
+                q_Mco_X += q_Mco
+
+            # если есть Серы диоксид и Углерод черный
+            if carb_sulf.exists():
+                row_num += 1
+                # сумма за три месяца
+                q_Mc, q_Mso2 = 0,0
+                # счетчик пропуска колонок
+                col_plus = 0
+
+                ws.write(row_num, 3, 'Серы диоксид', f_s)
+                ws.write(row_num, 4, 330, f_s)
+                ws.write(row_num+1, 3, 'Углерод черный', f_s)
+                ws.write(row_num+1, 4, 328, f_s)
+
+                # запись в три месяца
+                for elem in months:
+                    for dataElem in carb_sulf:
+                        if dataElem.name == item and dataElem.month == elem:
+                            ws.write(row_num, 8+col_plus, round(dataElem.Mso2, 4), f_s)
+                            ws.write(row_num+1, 8+col_plus, round(dataElem.Mc, 4), f_s)
+                            # сумма за три месяца
+                            q_Mc += dataElem.Mc
+                            q_Mso2 += dataElem.Mso2
+                    # пропуск колонок
+                    col_plus += 2
+
+                ws.write(row_num, 13, round(q_Mso2, 4), f_s)
+                ws.write(row_num+1, 13, round(q_Mc, 4), f_s)
+                # сумма за загрязняющее вещество
+                q_Mso2_X += q_Mso2
+                q_Mc_X += q_Mc
+                row_num += 1
+                
+    # СВАРКА ------------------------------------------------------------------
+        # получение записей из СВАРКИ
+        welding = WeldingWaste.objects.filter(quarter=quarter, year=year)
+        # суммы за три месяца
+        q_iron, q_mg = 0,0 
+        # суммы за три месяца, так же будут записаны в общую сумму по загрязняющему веществу
+        q_iron_t, q_mg_t = 0,0 
+
+        # если СВАРКА есть
         if welding.exists():
             row_num += 1
             ws.write(row_num, 0, 7, f_s)
             ws.write(row_num, 2, 'Электроды', f_s)
 
-            q_iron, q_mg, q_iron_t, q_mg_t = 0,0,0,0
+            # создание строки
             t_iron, t_mg = '',''
 
+            # суммы из всех найденных сварок
             for item in welding:
                 q_iron += item.iron_ox_kg
                 q_mg += item.mg_gg
@@ -598,23 +663,69 @@ class IRS2OrganizeDownloadExcel(View):
             ws.write(row_num, 11, q_mg, f_s)
             ws.write(row_num, 12, round(q_mg_t, 5), f_s)
             ws.write(row_num, 13, round(q_mg_t, 5), f_s)
-    # НЕОГРАНИЗОВАННЫЕ -----------------
+
+    # НЕОГРАНИЗОВАННЫЕ --------------------------------------------------------
+        # получение зщаписей из НЕОРГАНИЗОВАННЫХ
         data = UnOrganizeWaste.objects.filter(year=year, quarter=quarter)
+        # глобальная сумма по ПЫЛИ
+        grain_dust_X = 0
 
         for item in data:
+            # если запись не 6028
             if not item.e_s_number == '6028':
                 row_num += 1
 
                 ws.write(row_num, 0, item.e_s_number, f_s)
                 ws.write(row_num, 1, item.e_s_name, f_s)
                 ws.write(row_num, 3, item.harmful_substance_name, f_s)
+                ws.write(row_num, 4, item.code_ZV, f_s)
                 ws.write(row_num, 5, item.M, f_s)
                 ws.write(row_num, 11, round(item.Tw, 1), f_s)
                 ws.write(row_num, 12, item.G, f_s)
                 ws.write(row_num, 13, item.G, f_s)
-    # ПОСЛЕ ----------------------------
 
-# -----------------------------------------
+                # суммирует только ПЫЛЬ
+                if item.harmful_substance_name[0:4] == 'Пыль':
+                    grain_dust_X += item.G
+
+    # вывод по всем загрязняющим веществам --------------------------
+        ws.write(row_num+1, 1, 'Сумма по каждому загрязняющему веществу', h_s)
+        ws.merge(row_num+1,row_num+8,1,2)
+        # вывод сумм
+        ws.write(row_num+1, 3, 'Азот (1У) оксид', f_s)
+        ws.write(row_num+1, 4, 2, f_s)
+        ws.write(row_num+1, 13, round(q_Mno2_X, 3), f_s) # Азот (1У) оксид
+
+        ws.write(row_num+2, 3, 'Азот (11) оксид', f_s)
+        ws.write(row_num+2, 4, 3, f_s)
+        ws.write(row_num+2, 13, round(q_Mno_X, 3), f_s) # Азот (11) оксид
+
+        ws.write(row_num+3, 3, 'Углерод оксид', f_s)
+        ws.write(row_num+3, 4, 4, f_s)
+        ws.write(row_num+3, 13, round(q_Mco_X, 3), f_s) # Углерод оксид
+
+        ws.write(row_num+4, 3, 'Углерод черный', f_s)
+        ws.write(row_num+4, 4, 2, f_s)
+        ws.write(row_num+4, 13, round(q_Mc_X, 5), f_s) # Углерод черный
+
+        ws.write(row_num+5, 3, 'Серы диоксид', f_s)
+        ws.write(row_num+5, 4, 3, f_s)
+        ws.write(row_num+5, 13, round(q_Mso2_X, 5), f_s) # Серы диоксид
+
+        ws.write(row_num+6, 3, 'Железа оксид', f_s)
+        ws.write(row_num+6, 4, 3, f_s)
+        ws.write(row_num+6, 13, round(q_iron_t, 5), f_s) # Железа оксид
+
+        ws.write(row_num+7, 3, 'Марганец и его соед.', f_s)
+        ws.write(row_num+7, 4, 2, f_s)
+        ws.write(row_num+7, 13, round(q_mg_t, 5), f_s) # Марганец и его соед.
+
+        ws.write(row_num+8, 3, 'Пыль зерновая', f_s)
+        ws.write(row_num+8, 4, 3, f_s)
+        ws.write(row_num+8, 13, round(grain_dust_X, 4), f_s) # Пыль зерновая
+
+    # ПОСЛЕ ----------------------------
+        # длинна колонок
         ws.col(0).width  = 5*256
         ws.col(1).width  = 9*256
         ws.col(2).width  = 12*256
