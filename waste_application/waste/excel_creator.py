@@ -436,17 +436,16 @@ class IRS2OrganizeDownloadExcel(View):
         h_s = xlwt.easyxf('align: wrap yes,vert centre, horiz centre; font: height 240, name Times New Roman;') # для хэдэров
 
         # установка счетчика строк и счетчика листов
-        row_num, header_count = 0, 1
+        row_num = 0
 
         # формирование хэдэра для таблицы
-        def header(row_num, header_count):
+        def header(row_num):
             ws.write(row_num, 0, f'Год {year}', f_s)
             ws.merge(row_num,row_num,0,1)
             ws.write(row_num, 2, 'квартал', f_s)
             ws.write(row_num, 3, quarter_rim(quarter), f_s)
-            ws.write(row_num+1, 13, f'лист {header_count}', f_s)
 
-            row_num += 2
+            row_num += 1
 
             ws.write(row_num, 0, 'Источник выбросов', h_s)
             ws.merge(row_num, row_num, 0, 1)
@@ -508,11 +507,9 @@ class IRS2OrganizeDownloadExcel(View):
             ws.row(row_num+3).height = 65*20
 
         # вставка хэдера
-        header(row_num, header_count)
+        header(row_num)
         # пропуск строк с учетом хэдера
-        row_num += 6
-        # +1 к листу
-        header_count += 1
+        row_num += 5
 
     # КОТЕЛЬНЫЕ ---------------------------------------------------------------
         # получение НАЗВАНИЙ МЕСЯЦЕВ из квартала
@@ -705,7 +702,7 @@ class IRS2OrganizeDownloadExcel(View):
         ws.write(row_num+3, 13, round(q_Mco_X, 3), f_s) # Углерод оксид
 
         ws.write(row_num+4, 3, 'Углерод черный', f_s)
-        ws.write(row_num+4, 4, 2, f_s)
+        ws.write(row_num+4, 4, 3, f_s)
         ws.write(row_num+4, 13, round(q_Mc_X, 5), f_s) # Углерод черный
 
         ws.write(row_num+5, 3, 'Серы диоксид', f_s)
@@ -723,12 +720,28 @@ class IRS2OrganizeDownloadExcel(View):
         ws.write(row_num+8, 3, 'Пыль зерновая', f_s)
         ws.write(row_num+8, 4, 3, f_s)
         ws.write(row_num+8, 13, round(grain_dust_X, 4), f_s) # Пыль зерновая
+        row_num += 9
 
-    # ПОСЛЕ ----------------------------
+    # ФУТЕР ----------------------------
+        ws.write(row_num, 1, 'Итого по загрязняющим веществам:', f_s)
+        ws.write(row_num+1, 1, '2 класса опасности', f_s)
+        ws.write(row_num+2, 1, '3 класса опасности', f_s)
+        ws.write(row_num+3, 1, '4 класса опасности', f_s)
+        ws.write(row_num+4, 1, 'Итого по видам топлива', f_s)
+        
+        ws.write(row_num+1, 13, round(q_Mno2_X + q_mg_t, 4), f_s)
+        ws.write(row_num+2, 13, round(q_Mno_X + q_Mc_X + q_Mso2_X + q_iron_t + grain_dust_X, 4), f_s)
+        ws.write(row_num+3, 13, round(q_Mco_X, 4), f_s)
+        ws.write(row_num+4, 13, round(q_Mno2_X + q_mg_t + q_Mno_X + q_Mc_X + q_Mso2_X + q_iron_t + grain_dust_X + q_Mco_X, 4), f_s)
+
+        ws.write(row_num+6, 1, 'Проверил', f_s)
+        ws.write(row_num+6, 3, 'Главный инженер', f_s)
+        ws.write(row_num+6, 7, 'С. И. Лызо', f_s)
+
         # длинна колонок
         ws.col(0).width  = 5*256
         ws.col(1).width  = 9*256
-        ws.col(2).width  = 12*256
+        ws.col(2).width  = 13*256
         ws.col(3).width  = 16*256
         ws.col(4).width  = 7*256
         ws.col(5).width  = 10*256
@@ -775,14 +788,13 @@ class IRSOrganizeDownloadExcel(View):
 
         row_num = 0
 
-        def header(row_num, header_count):
+        def header(row_num):
             ws.write(row_num, 0, f'Год {year}', f_s)
             ws.merge(row_num,row_num,0,1)
             ws.write(row_num, 2, 'квартал', f_s)
             ws.write(row_num, 3, quarter_rim(quarter), f_s)
-            ws.write(row_num, 14, f'лист {header_count}', f_s)
 
-            row_num += 2
+            row_num += 1
 
             ws.write(row_num, 0, 'Источник выбросов', h_s)
             ws.merge(row_num, row_num, 0, 1)
@@ -843,18 +855,16 @@ class IRSOrganizeDownloadExcel(View):
 
             return row_num
 
-        zerno, solid, header_count = 0,0,1
+        zerno, solid = 0,0
         harmf_name = ['Пыль зерновая','Твердые суммарно']
         names = ['Элеватор','Мельница','Крупозавод','Фасовка']
+
+        header(row_num)
+        row_num += 4
 
         for eType in names:
             t_data = data.filter(emission_source=eType)
             sum = 0
-
-            if header_count < 4:
-                header(row_num, header_count)
-                row_num += 6
-                header_count += 1
 
             for h in harmf_name:
                 f_data = t_data.filter(harmful_substance_name=h)
@@ -902,9 +912,7 @@ class IRSOrganizeDownloadExcel(View):
                     row_num += 1
                     ws.write(row_num, 10, f'Итого по {eType}', f_s_bold_sum)
                     ws.merge(row_num, row_num, 10, 13)
-                    ws.write(row_num, 14, round(sum, 4), f_s_bold_sum)
-            if header_count < 4:
-                row_num += 3        
+                    ws.write(row_num, 14, round(sum, 4), f_s_bold_sum)      
 
         row_num += 1
         ws.write(row_num, 1, 'Сумма:', f_s)
