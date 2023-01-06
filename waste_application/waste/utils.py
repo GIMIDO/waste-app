@@ -201,6 +201,18 @@ def unorganize_calc_data(data, obj_type):
                 elem.G = round(elem.G, 4)
 
             return [p_1]
+
+        case "Фосфин":
+            h_s = ['фосфин (водород фосфористый)']
+            p_1 = 0
+
+            for elem in data:
+                p_1 += elem.G
+            
+                elem.Tw = round(elem.Tw, 1)
+                elem.G = round(elem.G, 4)
+
+            return [p_1]
     
 def get_hs(obj_type):
 
@@ -213,6 +225,9 @@ def get_hs(obj_type):
 
         case "РБ":
             return ['Пыль зерновая р/б']
+
+        case "Фосфин":
+            return['фосфин (водород фосфористый)']
 
 # --- #
 
@@ -236,6 +251,7 @@ def boiler_nitrogen_waste_calc(data):
         elem.Mno = round(decimal.Decimal(0.13) * elem.Mnox, 9)
 
         elem.save()
+
 
 def boiler_CB_SD_calc(data):
 

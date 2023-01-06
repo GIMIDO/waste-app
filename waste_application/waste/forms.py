@@ -144,6 +144,8 @@ class UnOrganizeWasteForm(forms.ModelForm):
             'e_s_number': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number'}),
             'e_s_name': forms.TextInput(attrs={'class': 'form-control mb-3', 'type':'text'}),
             'harmful_substance_name': forms.Select(attrs={'class': 'form-control mb-3', 'type':'text'}),
+            
+            'code_ZV': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type':'number'}),
 
             'M': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
             'T': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'1', 'min': '0'}), 

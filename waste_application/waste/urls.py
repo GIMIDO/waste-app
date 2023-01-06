@@ -14,6 +14,7 @@ urlpatterns = [
     # --- --- --- REPORTS
     path('report/', NalogView.as_view(), name='report'),
     path('download/IRS/excel/', IRSOrganizeDownloadExcel.as_view(), name='IRS-excel-download'),
+    path('download/IRS2/excel/', IRS2OrganizeDownloadExcel.as_view(), name='IRS-excel-download2'),
 
     # --- --- --- ОРГАНИЗОВАННЫЕ
     path('organize/waste/main/', OrganizeWasteView.as_view(), name='organize-waste-main'),

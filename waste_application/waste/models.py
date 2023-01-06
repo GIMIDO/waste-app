@@ -73,7 +73,8 @@ class UnOrganizeWaste(models.Model):
     OBJ_TYPE = (
         ('Мельзавод', 'Мельзавод'),
         ('Крупозавод', 'Крупозавод'),
-        ('РБ', 'РБ')
+        ('РБ', 'РБ'),
+        ('Фосфин','Фосфин'),
     )
 
     H_S_NAME = (
@@ -81,11 +82,13 @@ class UnOrganizeWaste(models.Model):
         ('Пыль мучная', 'Пыль мучная'),
         ('Пыль зерновая к/з', 'Пыль зерновая к/з'),
         ('Пыль зерновая р/б', 'Пыль зерновая р/б'),
+        ('фосфин (водород фосфористый)', 'фосфин (водород фосфористый)'),
     )
 
     obj_type = models.CharField(verbose_name="Объект", choices=OBJ_TYPE, max_length=30)
     e_s_number = models.CharField(verbose_name="№ источника выброса", max_length=10)
     e_s_name = models.CharField(verbose_name="Наименование источника выброса", max_length=255)
+    code_ZV = models.CharField(verbose_name="Код ЗВ", max_length=5, default='2937')
 
     harmful_substance_name = models.CharField(verbose_name="Вредное вещество", choices=H_S_NAME, max_length=100)
 
@@ -107,13 +110,19 @@ class UnOrganizeWaste(models.Model):
     weight = models.IntegerField(verbose_name="Вес одной ед. [кг]", default=0)
 
     def __str__(self) -> str:
-        return f'[{self.obj_type} {self.e_s_number}] {self.year} {self.quarter}'
+        return f'[{self.obj_type} {self.e_s_number}] {self.year} {self.quarter} {self.harmful_substance_name}'
 
 
 class BoilerWaste(models.Model):
 
+    FUEL = (
+        ("Газ природ.","Газ природ."),
+        ("Дизтопливо","Дизтопливо")
+    )
     name = models.CharField(verbose_name="Название", max_length=100)
     short_name = models.CharField(verbose_name="Короткое название (для автозаполнения) [5 символов]", max_length=5, null=True)
+    number = models.CharField(verbose_name="Номер источника", max_length=6, default=4)
+    fuel = models.CharField(verbose_name="Наименование топлива, сырья, материалов", choices=FUEL, max_length=20, default="Газ природ.")
 
     K = models.DecimalField(verbose_name="К", max_digits=5, decimal_places=4, default=4.1868)
 
