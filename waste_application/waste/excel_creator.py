@@ -864,12 +864,12 @@ class IRSOrganizeDownloadExcel(View):
 
         for eType in names:
             t_data = data.filter(emission_source=eType)
-            sum = 0
 
             for h in harmf_name:
                 f_data = t_data.filter(harmful_substance_name=h)
 
                 if f_data.exists():
+                    sum = 0
 
                     for item in f_data:
                         item_sum = 0
@@ -903,9 +903,9 @@ class IRSOrganizeDownloadExcel(View):
                         sum += item_sum
 
                         if item.harmful_substance_name == 'Твердые суммарно':
-                            solid += sum
+                            solid += item_sum
                         else:
-                            zerno += sum
+                            zerno += item_sum
 
                     if h == 'Твердые суммарно':
                         eType = 'Твердые суммарно'
