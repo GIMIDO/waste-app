@@ -1,4 +1,3 @@
-import json
 from .models import *
 import decimal
 import math
@@ -57,7 +56,6 @@ def organize_waste_calc_all_G(data):
             elem.G = round(elem.G, 4)
 
     return [round(all_G, 4), round(all_G2, 4)]
-
 
 def get_hs_o():
     return ['Пыль зерновая', 'Твердые суммарно']
@@ -170,13 +168,13 @@ def unorganize_calc_data(data, obj_type):
             for elem in data:
                 if elem.harmful_substance_name == h_s[0]:
                     p_1 += elem.G
-                else:
+                elif elem.harmful_substance_name == h_s[1]:
                     p_2 += elem.G
 
                 elem.Tw = round(elem.Tw, 1)
                 elem.G = round(elem.G, 4)
             
-            return [p_1, p_2]
+            return [round(p_1, 4), round(p_2, 4)]
 
         case "Крупозавод":
             h_s = ['Пыль зерновая к/з']
@@ -252,7 +250,6 @@ def boiler_nitrogen_waste_calc(data):
 
         elem.save()
 
-
 def boiler_CB_SD_calc(data):
 
     for elem in data:
@@ -327,3 +324,121 @@ def boiler_CB_SD_q(data):
         Mso2_sum += elem.Mso2
 
     return [Mc_sum, Mso2_sum]
+
+# --- #
+
+def pod_1_save(year, quarter):
+
+    data = OrganizeWaste.objects.filter(year=year, quarter=quarter)
+
+    zerno, solid = 0,0
+    harmf_name = ['Пыль зерновая','Твердые суммарно']
+    names = ['Элеватор','Мельница','Крупозавод','Фасовка']
+
+    for eType in names:
+        t_data = data.filter(emission_source=eType)
+
+        for h in harmf_name:
+            f_data = t_data.filter(harmful_substance_name=h)
+
+            if f_data.exists():
+                sum = 0
+
+                for item in f_data:
+                    item_sum = 0
+                    
+                    item_sum += item.M * item.first_month * 3600 * decimal.Decimal(0.000001)
+                    item_sum += item.M * item.second_month * 3600 * decimal.Decimal(0.000001)
+                    item_sum += item.M * item.third_month * 3600 * decimal.Decimal(0.000001)
+                    sum += item_sum
+
+                    if item.harmful_substance_name == 'Твердые суммарно':
+                        solid += item_sum
+                    else:
+                        zerno += item_sum
+
+    values_for_update = {"three_2": round(solid+zerno, 4)}
+    DeclarationWaste.objects.update_or_create(
+        year=year, quarter=quarter, defaults=values_for_update)
+
+def pod_2_save(year, quarter):
+
+    months = get_boiler_months(str(quarter))
+    dataBT = BoilerWaste.objects.all()
+    q_Mno_X, q_Mno2_X, q_Mco_X, q_Mc_X, q_Mso2_X = 0, 0, 0, 0, 0
+
+    for item in dataBT:
+        carbon = BoilerCarbonOxWaste.objects.filter(
+            quarter=quarter, name=item, year=year)
+        nitrogen = BoilerNitrogenWaste.objects.filter(
+            quarter=quarter, name=item, year=year)
+        carb_sulf = BoilerSulfCarbWaste.objects.filter(
+            quarter=quarter, name=item, year=year)
+
+        if nitrogen.exists():
+            q_Mno2, q_Mno, = 0, 0
+
+            for elem in months:
+                for dataElem in nitrogen:
+                    if dataElem.month == elem:
+                        q_Mno += dataElem.Mno
+                        q_Mno2 += dataElem.Mno2
+
+            q_Mno2_X += q_Mno2
+            q_Mno_X += q_Mno
+
+        if carbon.exists():
+            q_Mco = 0
+
+            for elem in months:
+                for dataElem in carbon:
+                    if dataElem.month == elem:
+                        q_Mco += dataElem.Mco
+
+            q_Mco_X += q_Mco
+
+        if carb_sulf.exists():
+            q_Mc, q_Mso2 = 0, 0
+
+            for elem in months:
+                for dataElem in carb_sulf:
+                    if dataElem.name == item and dataElem.month == elem:
+                        q_Mc += dataElem.Mc
+                        q_Mso2 += dataElem.Mso2
+
+            q_Mso2_X += q_Mso2
+            q_Mc_X += q_Mc
+
+    welding = WeldingWaste.objects.filter(quarter=quarter, year=year)
+    q_iron, q_mg = 0, 0
+    q_iron_t, q_mg_t = 0, 0
+
+    if welding.exists():
+        t_iron, t_mg = '', ''
+
+        for item in welding:
+            q_iron += item.iron_ox_kg
+            q_mg += item.mg_gg
+
+            q_iron_t += item.iron_ox_ton
+            q_mg_t += item.mg_ton
+
+            t_iron += str(round(item.emission, 2)) + ' '
+            t_mg += str(round(item.mg_gg, 2)) + ' '
+
+    data = UnOrganizeWaste.objects.filter(year=year, quarter=quarter)
+    grain_dust_X = 0
+
+    for item in data:
+        if not item.e_s_number == '6028':
+            if item.harmful_substance_name[0:4] == 'Пыль':
+                grain_dust_X += item.G
+
+    values_for_update = {
+        "two": round(q_Mno2_X + q_mg_t, 4),
+        "three_1": round(q_Mno_X + q_Mc_X + q_Mso2_X + q_iron_t + grain_dust_X, 4),
+        "four": round(q_Mco_X, 4),
+    }
+    
+    DeclarationWaste.objects.update_or_create(
+        year=year, quarter=quarter, defaults=values_for_update)

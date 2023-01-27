@@ -60,6 +60,12 @@ class NalogView(View):
         
         return render(request, 'base/nalog.html')
 
+class DeclarationView(View):
+
+    def get(self, request):
+        
+        return render(request, 'base/declaration.html')
+
 
 # --- #
 
@@ -76,7 +82,6 @@ class OrganizeWasteView(AuthUserMixin,View):
             emission_source = 'Элеватор'
             year = '2022'
             quarter = '1'
-
 
         data = OrganizeWaste.objects.filter(
             emission_source=emission_source,
@@ -151,6 +156,8 @@ class CreateOrganizeWasteView(AuthUserMixin,View):
             )
             orgObj.save()
 
+            pod_1_save(year, quarter)
+
             return redirect(f'/organize/waste/main/?type={emission_source}&year={year}&quarter={quarter}')
 
         context = {
@@ -168,14 +175,11 @@ class UpdateOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         emission_source = kwargs.get('e_s')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
 
-        obj = OrganizeWaste.objects.get(
-            pk=pk
-        )
+        obj = OrganizeWaste.objects.get(pk=kwargs.get('pk'))
 
         form = OrganizeWasteForm(emission_source, year, quarter, request.POST or None, instance=obj)
 
@@ -191,19 +195,17 @@ class UpdateOrganizeWasteView(AuthUserMixin, View):
 
     def post(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         emission_source = kwargs.get('e_s')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
 
-        obj = OrganizeWaste.objects.get(
-            pk=pk
-        )
+        obj = OrganizeWaste.objects.get(pk=kwargs.get('pk'))
 
         form = OrganizeWasteForm(emission_source, year, quarter, request.POST or None, instance=obj)
 
         if form.is_valid():
             form.save()
+            pod_1_save(year, quarter)
 
             return redirect(f'/organize/waste/main/?type={emission_source}&year={year}&quarter={quarter}')
 
@@ -224,9 +226,7 @@ class DeleteOrganizeWasteView(AuthUserMixin, View):
         
         obj = OrganizeWaste.objects.get(pk=(kwargs.get('pk')))
 
-        context = {
-            "obj": obj
-        }
+        context = {"obj": obj}
 
         return render(request, 'OrganizeWaste/delete.html', context)
 
@@ -234,6 +234,8 @@ class DeleteOrganizeWasteView(AuthUserMixin, View):
 
         obj = OrganizeWaste.objects.get(pk=(kwargs.get('pk')))
         obj.delete()
+
+        pod_1_save(obj.year, obj.quarter)
 
         return redirect(f'/organize/waste/main/?type={obj.emission_source}&year={obj.year}&quarter={obj.quarter}')
 
@@ -250,10 +252,7 @@ class WeldingWasteView(AuthUserMixin, View):
         else:
             year = '2022'
 
-
-        data = WeldingWaste.objects.filter(
-            year=year
-        )
+        data = WeldingWaste.objects.filter(year=year)
 
         welding_waste_calc(data)
 
@@ -307,6 +306,7 @@ class CreateWeldingWasteView(AuthUserMixin, View):
                 hyd_flu_ton = form.cleaned_data['hyd_flu_ton'],
             )
             orgObj.save()
+            pod_2_save(year, orgObj.quarter)
 
             return redirect(f'/welding/waste/main/?year={year}')
 
@@ -322,12 +322,9 @@ class UpdateWeldingWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
 
-        obj = WeldingWaste.objects.get(
-            pk=pk
-        )
+        obj = WeldingWaste.objects.get(pk=kwargs.get('pk'))
 
         form = WeldingWasteForm(year, request.POST or None, instance=obj)
 
@@ -340,17 +337,15 @@ class UpdateWeldingWasteView(AuthUserMixin, View):
 
     def post(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
 
-        obj = WeldingWaste.objects.get(
-            pk=pk
-        )
+        obj = WeldingWaste.objects.get(pk=kwargs.get('pk'))
 
         form = WeldingWasteForm(year, request.POST or None, instance=obj)
 
         if form.is_valid():
             form.save()
+            pod_2_save(year, form.changed_data['quarter'])
 
             return redirect(f'/welding/waste/main/?year={year}')
 
@@ -368,9 +363,7 @@ class DeleteWeldingWasteView(AuthUserMixin, View):
         
         obj = WeldingWaste.objects.get(pk=(kwargs.get('pk')))
 
-        context = {
-            "obj": obj
-        }
+        context = {"obj": obj}
 
         return render(request, 'WeldingWaste/delete.html', context)
 
@@ -378,6 +371,8 @@ class DeleteWeldingWasteView(AuthUserMixin, View):
 
         obj = WeldingWaste.objects.get(pk=(kwargs.get('pk')))
         obj.delete()
+
+        pod_2_save(obj.year, obj.quarter)
 
         return redirect(f'/welding/waste/main/?year={obj.year}')
 
@@ -397,7 +392,6 @@ class UnOrganizeWasteView(AuthUserMixin, View):
             year = '2022'
             quarter = '1'
             obj_type = 'Мельзавод'
-
 
         data = UnOrganizeWaste.objects.filter(
             year=year,
@@ -472,6 +466,7 @@ class CreateUnOrganizeWasteView(AuthUserMixin, View):
                 weight = form.cleaned_data['weight'],
             )
             orgObj.save()
+            pod_2_save(year, quarter)
 
             return redirect(f'/unorganize/waste/main/?obj_type={obj_type}&year={year}&quarter={quarter}')
 
@@ -489,14 +484,11 @@ class UpdateUnOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
         quarter = kwargs.get('quarter')
         obj_type = kwargs.get('obj_type')
 
-        obj = UnOrganizeWaste.objects.get(
-            pk=pk
-        )
+        obj = UnOrganizeWaste.objects.get(pk=kwargs.get('pk'))
 
         form = UnOrganizeWasteForm(obj_type, year, quarter, request.POST or None, instance=obj)
 
@@ -511,19 +503,17 @@ class UpdateUnOrganizeWasteView(AuthUserMixin, View):
 
     def post(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
         quarter = kwargs.get('quarter')
         obj_type = kwargs.get('obj_type')
 
-        obj = UnOrganizeWaste.objects.get(
-            pk=pk
-        )
+        obj = UnOrganizeWaste.objects.get(pk=kwargs.get('pk'))
 
         form = UnOrganizeWasteForm(obj_type, year, quarter, request.POST or None, instance=obj)
 
         if form.is_valid():
             form.save()
+            pod_2_save(year, quarter)
 
             return redirect(f'/unorganize/waste/main/?obj_type={obj_type}&year={year}&quarter={quarter}')
 
@@ -543,9 +533,7 @@ class DeleteUnOrganizeWasteView(AuthUserMixin, View):
         
         obj = UnOrganizeWaste.objects.get(pk=(kwargs.get('pk')))
 
-        context = {
-            "obj": obj
-        }
+        context = {"obj": obj}
 
         return render(request, 'UnOrganizeWaste/delete.html', context)
 
@@ -553,6 +541,8 @@ class DeleteUnOrganizeWasteView(AuthUserMixin, View):
 
         obj = UnOrganizeWaste.objects.get(pk=(kwargs.get('pk')))
         obj.delete()
+
+        pod_2_save(obj.year, obj.quarter)
 
         return redirect(f'/unorganize/waste/main/?obj_type={obj.obj_type}&year={obj.year}&quarter={obj.quarter}')
 
@@ -589,7 +579,6 @@ class BoilerWasteView(AuthUserMixin, View):
 
         boiler_carbon_waste_calc(data1)
         boiler_nitrogen_waste_calc(data2)
-
         boiler_CB_SD_calc(data3)
 
         context = {
@@ -655,6 +644,7 @@ class CreateBoilerNitrogenWasteView(AuthUserMixin, View):
                 Mno = form.cleaned_data['Mno'],
             )
             orgObj.save()
+            pod_2_save(year, quarter)
 
             return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
 
@@ -704,6 +694,7 @@ class CreateBoilerCarbonOxWasteView(AuthUserMixin, View):
                 Mco = form.cleaned_data['Mco'],
             )
             orgObj.save()
+            pod_2_save(year, quarter)
 
             return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
 
@@ -751,6 +742,7 @@ class CreateBoilerSulfCarbWasteView(AuthUserMixin, View):
                 Mso2 = form.cleaned_data['Mso2'],
             )
             orgObj.save()
+            pod_2_save(year, quarter)
 
             return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
 
@@ -767,13 +759,10 @@ class UpdateBoilerNitrogenWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
 
-        obj = BoilerNitrogenWaste.objects.get(
-            pk=pk
-        )
+        obj = BoilerNitrogenWaste.objects.get(pk=kwargs.get('pk'))
 
         form = BoilerNitrogenWasteForm(year, quarter, request.POST or None, instance=obj)
 
@@ -787,18 +776,16 @@ class UpdateBoilerNitrogenWasteView(AuthUserMixin, View):
 
     def post(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
 
-        obj = BoilerNitrogenWaste.objects.get(
-            pk=pk
-        )
+        obj = BoilerNitrogenWaste.objects.get(pk=kwargs.get('pk'))
 
         form = BoilerNitrogenWasteForm(year, quarter, request.POST or None, instance=obj)
 
         if form.is_valid():
             form.save()
+            pod_2_save(year, quarter)
 
             return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
 
@@ -814,13 +801,10 @@ class UpdateBoilerCarbonOxWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
 
-        obj = BoilerCarbonOxWaste.objects.get(
-            pk=pk
-        )
+        obj = BoilerCarbonOxWaste.objects.get(pk=kwargs.get('pk'))
 
         form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None, instance=obj)
 
@@ -834,18 +818,16 @@ class UpdateBoilerCarbonOxWasteView(AuthUserMixin, View):
 
     def post(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
 
-        obj = BoilerCarbonOxWaste.objects.get(
-            pk=pk
-        )
+        obj = BoilerCarbonOxWaste.objects.get(pk=kwargs.get('pk'))
 
         form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None, instance=obj)
 
         if form.is_valid():
             form.save()
+            pod_2_save(year, quarter)
 
             return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
 
@@ -861,13 +843,10 @@ class UpdateBoilerSulfCarbWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
 
-        obj = BoilerSulfCarbWaste.objects.get(
-            pk=pk
-        )
+        obj = BoilerSulfCarbWaste.objects.get(pk=kwargs.get('pk'))
 
         form = BoilerSulfCarbWasteForm(year, quarter, request.POST or None, instance=obj)
 
@@ -881,18 +860,16 @@ class UpdateBoilerSulfCarbWasteView(AuthUserMixin, View):
 
     def post(self, request, **kwargs):
 
-        pk = kwargs.get('pk')
         year = kwargs.get('year')
         quarter = kwargs.get('q')
 
-        obj = BoilerSulfCarbWaste.objects.get(
-            pk=pk
-        )
+        obj = BoilerSulfCarbWaste.objects.get(pk=kwargs.get('pk'))
 
         form = BoilerSulfCarbWasteForm(year, quarter, request.POST or None, instance=obj)
 
         if form.is_valid():
             form.save()
+            pod_2_save(year, quarter)
 
             return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
 
@@ -923,6 +900,8 @@ class DeleteBoilerNitrogenWasteView(AuthUserMixin, View):
         obj = BoilerNitrogenWaste.objects.get(pk=(kwargs.get('pk')))
         obj.delete()
 
+        pod_2_save(obj.year, obj.quarter)
+
         return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
 
 class DeleteBoilerCarbonOxWasteView(AuthUserMixin, View):
@@ -943,6 +922,8 @@ class DeleteBoilerCarbonOxWasteView(AuthUserMixin, View):
         obj = BoilerCarbonOxWaste.objects.get(pk=(kwargs.get('pk')))
         obj.delete()
 
+        pod_2_save(obj.year, obj.quarter)
+
         return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
 
 class DeleteBoilerSulfCarbWasteView(AuthUserMixin, View):
@@ -962,6 +943,8 @@ class DeleteBoilerSulfCarbWasteView(AuthUserMixin, View):
 
         obj = BoilerSulfCarbWaste.objects.get(pk=(kwargs.get('pk')))
         obj.delete()
+
+        pod_2_save(obj.year, obj.quarter)
 
         return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
 

@@ -17,13 +17,13 @@ def get_columns(quarter):
 
 def quarter_rim(quarter):
     match str(quarter):
-        case '1':
+        case "1":
             return 'I'
         case "2":
             return 'II'
-        case 3:
+        case "3":
             return 'III'
-        case 4:
+        case "4":
             return 'IV'
 
 
@@ -552,7 +552,7 @@ class IRS2OrganizeDownloadExcel(View):
                             q_Mno += dataElem.Mno
                             q_Mno2 += dataElem.Mno2
                     # пропуск колонок
-                    col_plus += 2
+                    col_plus += 2   
 
                 ws.write(row_num, 13, round(q_Mno2, 4), f_s)
                 ws.write(row_num+1, 13, round(q_Mno, 4), f_s)
@@ -759,6 +759,13 @@ class IRS2OrganizeDownloadExcel(View):
 
         wb.save(response)
 
+        values_for_update={
+            "two":round(q_Mno2_X + q_mg_t, 4),
+            "three_1":round(q_Mno_X + q_Mc_X + q_Mso2_X + q_iron_t + grain_dust_X, 4),
+            "four":round(q_Mco_X, 4),
+        }
+        DeclarationWaste.objects.update_or_create(year=year, quarter=quarter, defaults = values_for_update)
+
         return response
 
 
@@ -942,6 +949,100 @@ class IRSOrganizeDownloadExcel(View):
 
         response = HttpResponse(content_type='application/ms-excel')
         response.headers['Content-Disposition'] = f'attachment; filename="POD-1_{year}_{quarter}.xls"'
+
+        wb.save(response)
+
+        values_for_update={"three_2":round(solid+zerno, 4)}
+        DeclarationWaste.objects.update_or_create(year=year, quarter=quarter, defaults = values_for_update)
+
+        return response
+
+
+# Декларация
+class DeclarationDownloadExcel(View):
+    def get(self, request, **kwargs):
+
+        from xlutils.copy import copy
+        from xlrd import open_workbook
+        from django.db.models import Sum
+
+        # получение данных из формы
+        year = int(self.request.GET.get('year'))
+        quarter = self.request.GET.get('quarter')
+        class2 = decimal.Decimal(self.request.GET.get('2class'))
+        class3 = decimal.Decimal(self.request.GET.get('3class'))
+        class4 = decimal.Decimal(self.request.GET.get('4class'))
+
+        #шрифты
+        f_s = xlwt.easyxf('font: height 240, name Times New Roman;') # стандартный
+
+        # создание таблицы
+        wb = copy(open_workbook('waste/declaration.xls',formatting_info=True))
+        ws = wb.get_sheet(0)
+
+        ws.write(7, 13, quarter_rim(quarter), f_s)
+        ws.write(7, 19, year, f_s)
+
+        ws.write(14, 4, 'II класс', f_s)
+        ws.write(15, 4, 'III класс', f_s)
+        ws.write(16, 4, 'IV класс', f_s)
+
+        ws.write(14, 14, float(class2), f_s)
+        ws.write(15, 14, float(class3), f_s)
+        ws.write(16, 14, float(class4), f_s)
+
+        # получение записей за выбранный год
+        data = DeclarationWaste.objects.filter(year=year)
+        data2class, data3class, data4class = 0,0,0
+        # получение значений классов
+        for item in data:
+            data2class += item.two
+            data3class += item.three_1 + item.three_2
+            data4class += item.four
+        # получение записи этого года и квартала
+        data_now = DeclarationWaste.objects.get(year=year, quarter=quarter)
+
+        ws.write(14, 10, data2class, f_s)
+        ws.write(15, 10, data3class, f_s)
+        ws.write(16, 10, data4class, f_s)
+
+        ws.write(14, 12, data_now.two, f_s)
+        ws.write(15, 12, data_now.three_1 + data_now.three_2, f_s)
+        ws.write(16, 12, data_now.four, f_s)
+
+        two_result = round(data_now.two * class2, 2)
+        three_result = round((data_now.three_1 + data_now.three_2) * class3, 2)
+        four_result = round(data_now.four * class4, 2)
+        all_result = round(data_now.four * class4 + (data_now.three_1 + data_now.three_2) * class3 + data_now.two * class2, 2)
+        
+        ws.write(14, 22, two_result, f_s)
+        ws.write(15, 22, three_result, f_s)
+        ws.write(16, 22, four_result, f_s)
+        ws.write(17, 22, all_result, f_s)
+        
+        ws.write(14, 28, two_result, f_s)
+        ws.write(15, 28, three_result, f_s)
+        ws.write(16, 28, four_result, f_s)
+        ws.write(17, 28, all_result, f_s)
+
+        match quarter:
+            case "1": 
+                ws.write(23, 28, all_result, f_s)
+            case "2": 
+                ws.write(24, 28, all_result, f_s)
+            case "3": 
+                ws.write(25, 28, all_result, f_s)
+            case "4": 
+                ws.write(26, 28, all_result, f_s)
+
+        ws.write(23, 26, str(year) + ' года', f_s)
+        ws.write(24, 26, str(year) + ' года', f_s)
+        ws.write(25, 26, str(year) + ' года', f_s)
+        ws.write(26, 26, str(year+1) + ' года (год, следующий за налоговым)', f_s)
+                
+        # скачивание файла
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response['Content-Disposition'] = "attachment; filename=declaration.xls"
 
         wb.save(response)
 

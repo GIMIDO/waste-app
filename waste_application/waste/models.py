@@ -238,3 +238,28 @@ class BoilerSulfCarbWaste(models.Model):
 
     def __str__(self) -> str:
         return f'дизельное топливо / сажа | {self.Mso2} {self.year}'
+
+
+class DeclarationWaste(models.Model):
+
+    quarter = models.IntegerField(verbose_name="Квартал")
+    year = models.IntegerField(verbose_name="Год")
+
+    two = models.DecimalField(verbose_name='2 класс опасности', max_digits=10, decimal_places=4, default=0)
+    three_1 = models.DecimalField(verbose_name='3 класс опасности', max_digits=10, decimal_places=4, default=0)
+    three_2 = models.DecimalField(verbose_name='3 класс опасности (организованные)', max_digits=10, decimal_places=4, default=0)
+    four = models.DecimalField(verbose_name='4 класс опасности', max_digits=10, decimal_places=4, default=0)
+
+    def __str__(self) -> str:
+        return f'{self.year} [{self.quarter}]'
+
+
+class DeclarationCalc(models.Model):
+
+    sum = models.DecimalField(verbose_name='Сумма', max_digits=5, decimal_places=2, default=0)
+
+    quarter = models.IntegerField(verbose_name="Квартал")
+    year = models.IntegerField(verbose_name="Год")
+
+    def __str__(self) -> str:
+        return f'{self.year} [{self.quarter} {self.sum}]'

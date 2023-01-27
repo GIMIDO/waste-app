@@ -11,3 +11,5 @@ admin.site.register(BoilerCarbonOxWaste)
 admin.site.register(BoilerNitrogenWaste)
 
 admin.site.register(BoilerSulfCarbWaste)
+
+admin.site.register(DeclarationWaste)

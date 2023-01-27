@@ -1,6 +1,5 @@
 from django.urls import path
 
-
 from .views import *
 from .excel_creator import *
 
@@ -13,8 +12,10 @@ urlpatterns = [
     
     # --- --- --- REPORTS
     path('report/', NalogView.as_view(), name='report'),
+    path('declaration/', DeclarationView.as_view(), name='declaration'),
     path('download/IRS/excel/', IRSOrganizeDownloadExcel.as_view(), name='IRS-excel-download'),
     path('download/IRS2/excel/', IRS2OrganizeDownloadExcel.as_view(), name='IRS-excel-download2'),
+    path('download/declaration/excel/', DeclarationDownloadExcel.as_view(), name='declaration-excel-download'),
 
     # --- --- --- ОРГАНИЗОВАННЫЕ
     path('organize/waste/main/', OrganizeWasteView.as_view(), name='organize-waste-main'),
