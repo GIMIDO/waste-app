@@ -54,13 +54,14 @@ class LogoutView(View):
         logout(request)
         return redirect('login')
 
-class NalogView(View):
+
+class NalogView(AuthUserMixin, View):
 
     def get(self, request):
         
         return render(request, 'base/nalog.html')
 
-class DeclarationView(View):
+class DeclarationView(AuthUserMixin, View):
 
     def get(self, request):
         
@@ -70,7 +71,7 @@ class DeclarationView(View):
 # --- #
 
 
-class OrganizeWasteView(AuthUserMixin,View):
+class OrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -109,7 +110,7 @@ class OrganizeWasteView(AuthUserMixin,View):
         return render(request, "OrganizeWaste/waste.html", context)
 
 
-class CreateOrganizeWasteView(AuthUserMixin,View):
+class CreateOrganizeWasteView(AuthUserMixin, View):
 
     def get(self, request, **kwargs):
 
@@ -947,5 +948,4 @@ class DeleteBoilerSulfCarbWasteView(AuthUserMixin, View):
         pod_2_save(obj.year, obj.quarter)
 
         return redirect(f'/boiler/waste/main/?year={obj.year}&quarter={obj.quarter}')
-
 

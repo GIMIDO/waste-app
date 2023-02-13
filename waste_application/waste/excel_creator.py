@@ -996,9 +996,10 @@ class DeclarationDownloadExcel(View):
         data2class, data3class, data4class = 0,0,0
         # получение значений классов
         for item in data:
-            data2class += item.two
-            data3class += item.three_1 + item.three_2
-            data4class += item.four
+            if item.quarter <= int(quarter):
+                data2class += item.two
+                data3class += item.three_1 + item.three_2
+                data4class += item.four
         # получение записи этого года и квартала
         data_now = DeclarationWaste.objects.get(year=year, quarter=quarter)
 

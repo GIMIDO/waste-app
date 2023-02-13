@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-
+# модель пользвоателя (встроенная)
 User = get_user_model()
 
 
+# Организованные
 class OrganizeWaste(models.Model):
 
     TYPE_CHOICES = (
@@ -46,7 +47,7 @@ class OrganizeWaste(models.Model):
     def __str__(self) -> str:
         return f'{self.emission_source} {self.emission_source_number} {self.au_ptu_number} {self.harmful_substance_name} [{self.year} {self.quarter}]'
 
-
+# Сварка
 class WeldingWaste(models.Model):
 
     year = models.IntegerField(verbose_name="Год", default="2022")
@@ -67,7 +68,7 @@ class WeldingWaste(models.Model):
     def __str__(self) -> str:
         return f'{self.mark} {self.emission} [{self.year} {self.quarter}]'
 
-
+# Неорганизованные
 class UnOrganizeWaste(models.Model):
 
     OBJ_TYPE = (
@@ -112,7 +113,7 @@ class UnOrganizeWaste(models.Model):
     def __str__(self) -> str:
         return f'[{self.obj_type} {self.e_s_number}] {self.year} {self.quarter} {self.harmful_substance_name}'
 
-
+# Котельные (типы)
 class BoilerWaste(models.Model):
 
     FUEL = (
@@ -124,7 +125,7 @@ class BoilerWaste(models.Model):
     number = models.CharField(verbose_name="Номер источника", max_length=6, default=4)
     fuel = models.CharField(verbose_name="Наименование топлива, сырья, материалов", choices=FUEL, max_length=20, default="Газ природ.")
 
-    K = models.DecimalField(verbose_name="К", max_digits=5, decimal_places=4, default=4.1868)
+    K = models.DecimalField(verbose_name="К", max_digits=6, decimal_places=4, default=4.1868)
 
     q3 = models.DecimalField(verbose_name="q3, %", max_digits=3, decimal_places=2, default=0)
     R = models.DecimalField(verbose_name="R", max_digits=3, decimal_places=2, default=0)
@@ -134,7 +135,7 @@ class BoilerWaste(models.Model):
 
     def __str__(self) -> str:
         return f'{self.name} K={self.K}'
-
+# Котельные (углерод оксид)
 class BoilerCarbonOxWaste(models.Model):
 
     MONTHS = (
@@ -158,18 +159,18 @@ class BoilerCarbonOxWaste(models.Model):
     month = models.CharField(verbose_name="Месяц", choices=MONTHS, max_length=10)
     year = models.IntegerField(verbose_name="Год", default="2022")
 
-    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=6, decimal_places=4, default=0)
+    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=10, decimal_places=4, default=0)
     Qh = models.IntegerField(verbose_name="Qн, ккал/м3", default=0)
 
     # рассчитывается
-    Qh_calc = models.DecimalField(verbose_name="Qн, МДж/м3", max_digits=6, decimal_places=4, default=0)
-    Cco = models.DecimalField(verbose_name="Ссо, г/м3", max_digits=5, decimal_places=4, default=0)
-    Mco = models.DecimalField(verbose_name="М(CO), т/мес", max_digits=5, decimal_places=4, default=0)
+    Qh_calc = models.DecimalField(verbose_name="Qн, МДж/м3", max_digits=10, decimal_places=4, default=0)
+    Cco = models.DecimalField(verbose_name="Ссо, г/м3", max_digits=10, decimal_places=4, default=0)
+    Mco = models.DecimalField(verbose_name="М(CO), т/мес", max_digits=10, decimal_places=4, default=0)
 
 
     def __str__(self) -> str:
         return f'{self.name.name} [{self.year}/{self.month}/{self.quarter}]'
-
+# Котельные (азот диоксид и азот оксид)
 class BoilerNitrogenWaste(models.Model):
 
     MONTHS = (
@@ -193,22 +194,22 @@ class BoilerNitrogenWaste(models.Model):
     month = models.CharField(verbose_name="Месяц", choices=MONTHS, max_length=10)
     year = models.IntegerField(verbose_name="Год", default="2022")
 
-    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=7, decimal_places=4, default=0)
+    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=8, decimal_places=4, default=0)
     Qh = models.IntegerField(verbose_name="Qн, ккал/м3", default=0)
     T = models.IntegerField(verbose_name="T, час", default=0)
 
     # рассчитывается
     Q = models.DecimalField(verbose_name="Q", max_digits=12, decimal_places=9, default=0)
-    Bs = models.DecimalField(verbose_name="Вs, м3/с", max_digits=11, decimal_places=9, default=0)
-    Knox = models.DecimalField(verbose_name="Кnoх, г/МДж", max_digits=11, decimal_places=9, default=0)
-    Mnox = models.DecimalField(verbose_name="Мnox, т/год", max_digits=11, decimal_places=9, default=0)
+    Bs = models.DecimalField(verbose_name="Вs, м3/с", max_digits=12, decimal_places=9, default=0)
+    Knox = models.DecimalField(verbose_name="Кnoх, г/МДж", max_digits=12, decimal_places=9, default=0)
+    Mnox = models.DecimalField(verbose_name="Мnox, т/год", max_digits=12, decimal_places=9, default=0)
 
-    Mno2 = models.DecimalField(verbose_name="М(NO2)", max_digits=11, decimal_places=9, default=0)
-    Mno = models.DecimalField(verbose_name="М(NO)", max_digits=11, decimal_places=4, default=0)
+    Mno2 = models.DecimalField(verbose_name="М(NO2)", max_digits=12, decimal_places=9, default=0)
+    Mno = models.DecimalField(verbose_name="М(NO)", max_digits=12, decimal_places=4, default=0)
     
     def __str__(self) -> str:
         return f'{self.name.name} [{self.year}/{self.month}]'
-
+# Котельные (дизельное топливо и сажа)
 class BoilerSulfCarbWaste(models.Model):
 
     MONTHS = (
@@ -231,15 +232,15 @@ class BoilerSulfCarbWaste(models.Model):
     quarter = models.IntegerField(verbose_name="Квартал", default=1)
     month = models.CharField(verbose_name="Месяц", choices=MONTHS, max_length=10)
     year = models.IntegerField(verbose_name="Год", default="2022")
-    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=8, decimal_places=5, default=0)
+    B = models.DecimalField(verbose_name="В, тыс. м3", max_digits=9, decimal_places=5, default=0)
 
-    Mso2 = models.DecimalField(verbose_name='Mso2, т/год', max_digits=5, decimal_places=4, default=0)
-    Mc = models.DecimalField(verbose_name='M c, т/год', max_digits=5, decimal_places=4, default=0) 
+    Mso2 = models.DecimalField(verbose_name='Mso2, т/год', max_digits=7, decimal_places=4, default=0)
+    Mc = models.DecimalField(verbose_name='M c, т/год', max_digits=7, decimal_places=4, default=0) 
 
     def __str__(self) -> str:
         return f'дизельное топливо / сажа | {self.Mso2} {self.year}'
 
-
+# Данные для Деклараций
 class DeclarationWaste(models.Model):
 
     quarter = models.IntegerField(verbose_name="Квартал")
@@ -253,10 +254,9 @@ class DeclarationWaste(models.Model):
     def __str__(self) -> str:
         return f'{self.year} [{self.quarter}]'
 
-
 class DeclarationCalc(models.Model):
 
-    sum = models.DecimalField(verbose_name='Сумма', max_digits=5, decimal_places=2, default=0)
+    sum = models.DecimalField(verbose_name='Сумма', max_digits=7, decimal_places=2, default=0)
 
     quarter = models.IntegerField(verbose_name="Квартал")
     year = models.IntegerField(verbose_name="Год")
