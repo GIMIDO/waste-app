@@ -1,6 +1,7 @@
 from django.shortcuts import redirect
 
 
+# проверка на авторизованного пользователя
 class AuthUserMixin(object):
 
     def dispatch(self, request, *args, **kwargs):

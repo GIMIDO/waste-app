@@ -1,11 +1,11 @@
-import json
 from .models import *
 import decimal
 import math
 
 
+# Получение месяцев для вывода их на странице
 def get_months(quarter):
-    
+
     if (quarter == '1'):
         return {'1': 'Январь','2': 'Февраль','3': 'Март'}
     elif (quarter == '2'):
@@ -17,6 +17,7 @@ def get_months(quarter):
     else:
         return {'1': 'Месяц 1','2': 'Месяц 2','3': 'Месяц 3'}
 
+# Получение месяцев для вывода их на странице (специально для котельных)
 def get_boiler_months(quarter):
     
     if (quarter == '1'):
@@ -30,8 +31,9 @@ def get_boiler_months(quarter):
     else:
         return ['М1','М2','М3']
 
-# --- #
 
+# - - - ОРГАНИЗОВАННЫЕ - - - #
+# Расчет суммы по трем месяцам и G для объектов в списке (для организованных)
 def organize_waste_calc_all(data):
 
     for elem in data:
@@ -39,14 +41,16 @@ def organize_waste_calc_all(data):
         elem.G = round(elem.all * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
 
         elem.save()
-    
-def organize_waste_calc_all_G(data):
 
+# Расчет G для каждого вещества для списка объектов и вывода их сумм (для организованных)
+def organize_waste_calc_all_G(data):
 
     all_G = 0
     all_G2 = 0
+    # Получение списка загрязняющих веществ
     hs = get_hs_o()
 
+    # для двух веществ
     for elem in data:
         if elem.harmful_substance_name == hs[0]:
             all_G += elem.G
@@ -58,13 +62,13 @@ def organize_waste_calc_all_G(data):
 
     return [round(all_G, 4), round(all_G2, 4)]
 
-
+# Получение списка загрязняющих веществ [заполнять самому]
 def get_hs_o():
     return ['Пыль зерновая', 'Твердые суммарно']
 
 
-# --- #
-
+# - - - СВАРКА - - - #
+# Расчет значений для объектов
 def welding_waste_calc(data):
 
     for elem in data:
@@ -74,6 +78,7 @@ def welding_waste_calc(data):
 
         elem.save()
 
+# Получение кварталов
 def get_quarters(data):
 
     q = 0
@@ -148,8 +153,9 @@ def welding_waste_sum_calc(data):
 
     return sum_calc
 
-# --- #
 
+# - - - Неорганизованные - - - #
+# Расчет значений для объекта Сварки
 def unorganize_waste_calculate(data):
 
     for elem in data:
@@ -161,6 +167,7 @@ def unorganize_waste_calculate(data):
 
         elem.save()
 
+# Сумма значений по каждому типу объекта
 def unorganize_calc_data(data, obj_type):
     match obj_type:
         case "Мельзавод":
@@ -170,13 +177,13 @@ def unorganize_calc_data(data, obj_type):
             for elem in data:
                 if elem.harmful_substance_name == h_s[0]:
                     p_1 += elem.G
-                else:
+                elif elem.harmful_substance_name == h_s[1]:
                     p_2 += elem.G
 
                 elem.Tw = round(elem.Tw, 1)
                 elem.G = round(elem.G, 4)
             
-            return [p_1, p_2]
+            return [round(p_1, 4), round(p_2, 4)]
 
         case "Крупозавод":
             h_s = ['Пыль зерновая к/з']
@@ -213,7 +220,8 @@ def unorganize_calc_data(data, obj_type):
                 elem.G = round(elem.G, 4)
 
             return [p_1]
-    
+
+# Получение списка вредных веществ по типу объекта
 def get_hs(obj_type):
 
     match obj_type:
@@ -229,30 +237,39 @@ def get_hs(obj_type):
         case "Фосфин":
             return['фосфин (водород фосфористый)']
 
-# --- #
 
+# - - - Котельные - - - #
+# Расчет значений для углерод оксид
 def boiler_carbon_waste_calc(data):
 
     for elem in data:
-        elem.Qh_calc = round(elem.Qh * elem.name.K * decimal.Decimal(0.001), 9)
-        elem.Cco = round(elem.Qh_calc * elem.name.q3 * elem.name.R, 9)
-        elem.Mco = round(elem.B * elem.Cco * decimal.Decimal(0.001), 9)
+        elem.Qh_calc = round(elem.Qh * elem.name.K * decimal.Decimal(0.001), 5)
+        elem.Cco = round(elem.Qh_calc * elem.name.q3 * elem.name.R, 5)
+        elem.Mco = round(elem.B * elem.Cco * decimal.Decimal(0.001), 5)
 
         elem.save()
 
+# Расчет значений для азот диоксид и азот оксид
 def boiler_nitrogen_waste_calc(data):
 
     for elem in data:
-        elem.Q = round(elem.Qh * elem.name.K * decimal.Decimal(0.001), 9)
-        elem.Bs = round(elem.B / (decimal.Decimal(3.6) * elem.T), 9)
-        elem.Knox = round((decimal.Decimal(0.01) * decimal.Decimal(math.sqrt(decimal.Decimal(1.59) * elem.Q * elem.Bs))) + decimal.Decimal(0.03), 9)
+        elem.Bs = round(elem.B / (decimal.Decimal(3.6) * elem.T), 5)
+
+        # проверка на "з/сушилка к/з"
+        if elem.name.name == "з/сушилка к/з":
+            elem.Q = round(decimal.Decimal(42.4400), 2)
+            elem.Knox = round((decimal.Decimal(0.01) * decimal.Decimal(math.sqrt(decimal.Decimal(1.59) * elem.Q * elem.Bs))) + decimal.Decimal(0.09), 9)
+        else:
+            elem.Q = round(elem.Qh * elem.name.K * decimal.Decimal(0.001), 9)
+            elem.Knox = round((decimal.Decimal(0.01) * decimal.Decimal(math.sqrt(decimal.Decimal(1.59) * elem.Q * elem.Bs))) + decimal.Decimal(0.03), 9)
+
         elem.Mnox = round(decimal.Decimal(0.001) * elem.B * elem.Q * elem.Knox * elem.name.Bk * elem.name.Bt, 9)
         elem.Mno2 = round(decimal.Decimal(0.8) * elem.Mnox, 9)
         elem.Mno = round(decimal.Decimal(0.13) * elem.Mnox, 9)
 
         elem.save()
 
-
+# Расчет значений для дизельное топливо и сажа
 def boiler_CB_SD_calc(data):
 
     for elem in data:
@@ -261,6 +278,7 @@ def boiler_CB_SD_calc(data):
 
         elem.save()
 
+# Расчет значений для углерод оксид (за квартал)
 def boiler_carbon_waste_month(data, months):
 
     B1, B2, B3 = 0, 0, 0
@@ -279,13 +297,14 @@ def boiler_carbon_waste_month(data, months):
             B3 += elem.B
             Mco3 += elem.Mco
 
-        
+        # после всех расчетов производим округление, для красоты вывода
         elem.Qh_calc = round(elem.Qh_calc, 4)
         elem.Cco = round(elem.Cco, 4)
         elem.Mco = round(elem.Mco, 4)
 
     return [[months[0], B1, round(Mco1, 4)], [months[1], B2, round(Mco2, 4)], [months[2], B3, round(Mco3, 4)]]
 
+# Расчет значений для азот диоксид и азот оксид (за квартал)
 def boiler_nitrogen_waste_month(data, months):
 
     B1, B2, B3 = 0, 0, 0
@@ -293,22 +312,26 @@ def boiler_nitrogen_waste_month(data, months):
     Mno2_1, Mno2_2, Mno2_3 = 0, 0, 0
 
     for elem in data:
-        if elem.month == months[0]:
-            B1 += elem.B
-            Mno1 += elem.Mno
-            Mno2_1 += elem.Mno2
-
-        elif elem.month == months[1]:
-            B2 += elem.B
-            Mno2 += elem.Mno
-            Mno2_2 += elem.Mno2
-
-        elif elem.month == months[2]:
-            B3 += elem.B
-            Mno3 += elem.Mno
-            Mno2_3 += elem.Mno2
-
         
+        # если элемент НЕ "з/сушилка к/з", то суммируем его
+        if elem.name.name != "з/сушилка к/з":
+
+            if elem.month == months[0]:
+                B1 += elem.B
+                Mno1 += elem.Mno
+                Mno2_1 += elem.Mno2
+
+            elif elem.month == months[1]:
+                B2 += elem.B
+                Mno2 += elem.Mno
+                Mno2_2 += elem.Mno2
+
+            elif elem.month == months[2]:
+                B3 += elem.B
+                Mno3 += elem.Mno
+                Mno2_3 += elem.Mno2
+
+        # после всех расчетов производим округление, для красоты вывода
         elem.Q = round(elem.Q, 4)
         elem.Bs = round(elem.Bs, 4)
         elem.Knox = round(elem.Knox, 4)
@@ -318,6 +341,7 @@ def boiler_nitrogen_waste_month(data, months):
 
     return [[months[0], B1, round(Mno1, 4), round(Mno2_1, 4)], [months[1], B2, round(Mno2, 4), round(Mno2_2, 4)], [months[2], B3, round(Mno3, 4), round(Mno2_3, 4)]]
 
+# Расчет значений для дизельное топливо и сажа (за квартал)
 def boiler_CB_SD_q(data):
 
     Mc_sum, Mso2_sum = 0,0
@@ -327,3 +351,123 @@ def boiler_CB_SD_q(data):
         Mso2_sum += elem.Mso2
 
     return [Mc_sum, Mso2_sum]
+
+
+# - - - Отчеты - - - #
+# Сохранение данных для декларации (из ПОД-1)
+def pod_1_save(year, quarter):
+
+    data = OrganizeWaste.objects.filter(year=year, quarter=quarter)
+
+    zerno, solid = 0,0
+    harmf_name = ['Пыль зерновая','Твердые суммарно']
+    names = ['Элеватор','Мельница','Крупозавод','Фасовка']
+
+    for eType in names:
+        t_data = data.filter(emission_source=eType)
+
+        for h in harmf_name:
+            f_data = t_data.filter(harmful_substance_name=h)
+
+            if f_data.exists():
+                sum = 0
+
+                for item in f_data:
+                    item_sum = 0
+                    
+                    item_sum += item.M * item.first_month * 3600 * decimal.Decimal(0.000001)
+                    item_sum += item.M * item.second_month * 3600 * decimal.Decimal(0.000001)
+                    item_sum += item.M * item.third_month * 3600 * decimal.Decimal(0.000001)
+                    sum += item_sum
+
+                    if item.harmful_substance_name == 'Твердые суммарно':
+                        solid += item_sum
+                    else:
+                        zerno += item_sum
+
+    values_for_update = {"three_2": round(solid+zerno, 4)}
+    DeclarationWaste.objects.update_or_create(
+        year=year, quarter=quarter, defaults=values_for_update)
+
+# Сохранение данных для декларации (из ПОД-2)
+def pod_2_save(year, quarter):
+
+    months = get_boiler_months(str(quarter))
+    dataBT = BoilerWaste.objects.all()
+    q_Mno_X, q_Mno2_X, q_Mco_X, q_Mc_X, q_Mso2_X = 0, 0, 0, 0, 0
+
+    for item in dataBT:
+        carbon = BoilerCarbonOxWaste.objects.filter(
+            quarter=quarter, name=item, year=year)
+        nitrogen = BoilerNitrogenWaste.objects.filter(
+            quarter=quarter, name=item, year=year)
+        carb_sulf = BoilerSulfCarbWaste.objects.filter(
+            quarter=quarter, name=item, year=year)
+
+        if nitrogen.exists():
+            q_Mno2, q_Mno, = 0, 0
+
+            for elem in months:
+                for dataElem in nitrogen:
+                    if dataElem.month == elem:
+                        q_Mno += dataElem.Mno
+                        q_Mno2 += dataElem.Mno2
+
+            q_Mno2_X += q_Mno2
+            q_Mno_X += q_Mno
+
+        if carbon.exists():
+            q_Mco = 0
+
+            for elem in months:
+                for dataElem in carbon:
+                    if dataElem.month == elem:
+                        q_Mco += dataElem.Mco
+
+            q_Mco_X += q_Mco
+
+        if carb_sulf.exists():
+            q_Mc, q_Mso2 = 0, 0
+
+            for elem in months:
+                for dataElem in carb_sulf:
+                    if dataElem.name == item and dataElem.month == elem:
+                        q_Mc += dataElem.Mc
+                        q_Mso2 += dataElem.Mso2
+
+            q_Mso2_X += q_Mso2
+            q_Mc_X += q_Mc
+
+    welding = WeldingWaste.objects.filter(quarter=quarter, year=year)
+    q_iron, q_mg = 0, 0
+    q_iron_t, q_mg_t = 0, 0
+
+    if welding.exists():
+        t_iron, t_mg = '', ''
+
+        for item in welding:
+            q_iron += item.iron_ox_kg
+            q_mg += item.mg_gg
+
+            q_iron_t += item.iron_ox_ton
+            q_mg_t += item.mg_ton
+
+            t_iron += str(round(item.emission, 2)) + ' '
+            t_mg += str(round(item.mg_gg, 2)) + ' '
+
+    data = UnOrganizeWaste.objects.filter(year=year, quarter=quarter)
+    grain_dust_X = 0
+
+    for item in data:
+        if not item.e_s_number == '6028':
+            if item.harmful_substance_name[0:4] == 'Пыль':
+                grain_dust_X += item.G
+
+    values_for_update = {
+        "two": round(q_Mno2_X + q_mg_t, 4),
+        "three_1": round(q_Mno_X + q_Mc_X + q_Mso2_X + q_iron_t + grain_dust_X, 4),
+        "four": round(q_Mco_X, 4),
+    }
+    
+    DeclarationWaste.objects.update_or_create(
+        year=year, quarter=quarter, defaults=values_for_update)
