@@ -1,14 +1,13 @@
 {% extends 'base/base.html' %} {% block content %}
 <div class="mb-3">
-  <hr />
-  <form class="w-50" method="get" action="{% url 'boiler-waste-main' %}">
-    <p class="fs-4 fw-bold">Поиск</p>
-    <div class="input-group mb-3">
+  <form class="" method="get" action="{% url 'boiler-waste-main' %}">
+    <p class="fs-4 fw-bold mb-2">Поиск</p>
+    <div class="input-group">
       <label class="input-group-text">Год</label>
       <input
         type="year"
         name="year"
-        class="form-control me-1"
+        class="form-control"
         placeholder="Год"
         value="{{ page_data.year }}"
       />
@@ -21,7 +20,7 @@
         <option value="4">4</option>
       </select>
     </div>
-    <input class="btn btn-primary" type="submit" value="Найти" />
+    <input class="btn btn-primary mt-2" type="submit" value="Найти" />
   </form>
   
   <hr />
@@ -86,11 +85,6 @@
 
     </tbody>
   </table>
-  <a
-  href="{% url 'boiler-carbon-waste-create' page_data.year page_data.quarter %}"
-  class="btn btn-success"
-  >Добавить в эту таблицу</a
->
 
   <table class="table table-bordered table-hover table-sm w-50 caption-top text-center align-middle table-sm">
     <caption class="text-end">Квартальный расчет</caption>
@@ -110,9 +104,9 @@
       </tr>
       {% endfor %}
     </tbody>
-    </table>  
+  </table>  
 
-    <hr class="mt-5"/>
+  <hr class="mt-5"/>
 
   <p class="fs-4 mt-3">
     Валовый выброс <strong><u>азота диоксида и азота оксида</u></strong> за
@@ -181,11 +175,7 @@
 
     </tbody>
   </table>
-  <a
-    href="{% url 'boiler-nitrogen-waste-create' page_data.year page_data.quarter %}"
-    class="btn btn-success"
-    >Добавить в эту таблицу</a
-  >
+
   <table class="table table-bordered table-hover table-sm w-50 caption-top text-center align-middle table-sm">
     <caption class="text-end">Квартальный расчет</caption>
     <thead>
@@ -214,7 +204,7 @@
     <strong> {{ page_data.quarter }}</strong> квартал
   </p>
 
-  <table class="text-center table table-bordered table-hover mt-3 caption-top table-sm w-50">
+  <table class="text-center table table-bordered table-hover mt-3 caption-top table-sm w-50" style="margin-bottom: 150px;">
     <caption class="text-end">Таблица с записями</caption>
     <thead class="align-middle">
       <tr>
@@ -260,13 +250,20 @@
     </tfoot>
   </table>
   
-  <a
-    href="{% url 'boiler-sulf_carb-waste-create' page_data.year page_data.quarter %}"
-    class="btn btn-success"
-    >Добавить в эту таблицу</a
-  >
-  <br>
-  <a href="{% url 'excel-download-boiler' page_data.year page_data.quarter %}" class="btn btn-primary mt-1">Скачать файл за {{ page_data.year }} год (Excel)</a>
+
+
+  <div class="fixed-bottom" style="background: #fff; ">
+    <hr style="padding: 0; margin: 0;" class="">
+    <div class="two-items" style="display: flex; justify-content: space-between;">
+      <p class="fs-4 ms-5 my-2">Котельные | <strong>{{ page_data.quarter }}</strong> квартал, <strong>{{ page_data.year }}</strong> год</p>
+      <div class="mx-5 my-2">
+        <a href="{% url 'boiler-nitrogen-waste-create' page_data.year page_data.quarter %}" class="btn btn-success mt-1">Добавить в таблицу (углерод и азот)</a>
+        <a href="{% url 'boiler-sulf_carb-waste-create' page_data.year page_data.quarter %}" class="btn btn-success mt-1">Добавить в таблицу дизельного топлива и сажи</a>
+        <a href="{% url 'excel-download-boiler' page_data.year page_data.quarter %}" class="btn btn-primary mt-1">Скачать в Excel</a>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 {% endblock content %}
