@@ -2,15 +2,18 @@
 <div class="mb-3">
   <form class="" method="get" action="{% url 'boiler-waste-main' %}">
     <p class="fs-4 fw-bold mb-2">Поиск</p>
-    <div class="input-group">
+    <div class="d-flex justify-content-start">
+    <div class="input-group wform me-2">
       <label class="input-group-text">Год</label>
       <input
-        type="year"
+        type="number"
         name="year"
         class="form-control"
         placeholder="Год"
         value="{{ page_data.year }}"
       />
+    </div>
+    <div class="input-group wform me-2">
       <label class="input-group-text">Квартал</label>
       <select name="quarter" type="text" class="form-select">
         <option value="{{ page_data.quarter }}" selected hidden>{{ page_data.quarter }}</option>
@@ -19,6 +22,7 @@
         <option value="3">3</option>
         <option value="4">4</option>
       </select>
+    </div>
     </div>
     <input class="btn btn-primary mt-2" type="submit" value="Найти" />
   </form>
