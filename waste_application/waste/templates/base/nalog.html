@@ -1,8 +1,10 @@
 {% extends 'base/base.html' %} {% block content %}
-<div class="container mt-3">
-  <div class="d-flex">
-  <form action="{% url 'IRS-excel-download' %}" method="get" class="">
-    <p class="fs-4 mb-2 fw-bold">ПОД-1</p>
+<div class="container w-50">
+  <hr />
+  <p class="fs-5 fw-bold mb-3">Создание файлов для налогвой</p>
+
+  <form action="{% url 'IRS-excel-download' %}" method="get" class="mb-3">
+    <p class="fs-6 mb-2">Скачать ПОД-1</p>
     <div class="input-group mb-3">
       <label class="input-group-text">Год</label>
       <input
@@ -25,8 +27,8 @@
     <input class="btn btn-success" type="submit" value="Скачать ПОД-1" />
   </form>
 
-  <form action="{% url 'IRS-excel-download2' %}" method="get" class="ms-5">
-    <p class="fs-4 mb-2 fw-bold">ПОД-2</p>
+  <form action="{% url 'IRS-excel-download2' %}" method="get" class="">
+    <p class="fs-6 mb-2">Скачать ПОД-2</p>
     <div class="input-group mb-3">
       <label class="input-group-text">Год</label>
       <input
@@ -48,41 +50,5 @@
 
     <input class="btn btn-danger" type="submit" value="Скачать ПОД-2"/>
   </form>
-</div>
-
-<hr class="my-4">
-
-<form action="{% url 'declaration-excel-download' %}" method="get" class="">
-  <p class="fs-4 mb-2 fw-bold">Декларация</p>
-  <div class="input-group mb-3">
-    <label class="input-group-text">Год</label>
-    <input
-      type="year"
-      name="year"
-      class="form-control me-1"
-      placeholder="Год"
-      value="2022"
-    />
-    <label class="input-group-text">Квартал</label>
-    <select name="quarter" type="text" class="form-select">
-      <option value="1" selected hidden>1</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-    </select>
-  </div>
-  <p class="fs-6 mb-2">Классы опасности</p>
-  <div class="input-group mb-3">
-    <label class="input-group-text">2</label>
-    <input type="number" name="2class" class="form-control me-1" placeholder="2 класс опасности" value="1034.06" />
-    <label class="input-group-text">3</label>
-    <input type="number" name="3class" class="form-control me-1" placeholder="3 класс опасности" value="341.84" />
-    <label class="input-group-text">4</label>
-    <input type="number" name="4class" class="form-control" placeholder="4 класс опасности" value="169.86" />
-  </div>
-
-  <input class="btn btn-success" type="submit" value="Скачать декларацию" />
-</form>
 </div>
 {% endblock %}

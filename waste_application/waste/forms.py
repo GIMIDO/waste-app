@@ -114,11 +114,11 @@ class WeldingWasteForm(forms.ModelForm):
             'mark': forms.TextInput(attrs={'class': 'form-control mb-1', 'type':'text'}),
             'emission': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type':'number'}),
 
-            'iron_ox_kg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
+            'iron_ox_kg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'1', 'min': '0'}), 
 
-            'mg_gg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.0001', 'min': '0'}), 
+            'mg_gg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
 
-            'hyd_flu_gkg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.0001', 'min': '0'}), 
+            'hyd_flu_gkg': forms.NumberInput(attrs={'class': 'form-control mb-1', 'type':'number', 'step':'0.001', 'min': '0'}), 
 
         }
 

@@ -82,7 +82,7 @@ urlpatterns = [
     # страничка создания Азот диоксид и азот оксид
     path('boiler/waste/create/nitrogen/<int:year>/<int:q>/', CreateBoilerNitrogenWasteView.as_view(), name='boiler-nitrogen-waste-create'),
     # страничка создания Углерод оксид
-    # path('boiler/waste/create/carbon/<int:year>/<int:q>/', CreateBoilerCarbonOxWasteView.as_view(), name='boiler-carbon-waste-create'),
+    path('boiler/waste/create/carbon/<int:year>/<int:q>/', CreateBoilerCarbonOxWasteView.as_view(), name='boiler-carbon-waste-create'),
     # страничка создания дизельное топливо и сажа
     path('boiler/waste/create/sulf-carb/<int:year>/<int:q>/', CreateBoilerSulfCarbWasteView.as_view(), name='boiler-sulf_carb-waste-create'),
 
