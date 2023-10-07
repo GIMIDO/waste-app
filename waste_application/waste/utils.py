@@ -155,13 +155,14 @@ def welding_waste_sum_calc(data):
 
 
 # - - - Неорганизованные - - - #
-# Расчет значений для объекта Сварки
+# Расчет значений для объекта
 def unorganize_waste_calculate(data):
 
     for elem in data:
         elem.all = elem.first_month + elem.second_month + elem.third_month
-        elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 9)
-        elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
+        # elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 9)
+        # elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
+        elem.G = round(elem.M * elem.all * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
 
         elem.all = round(elem.all, 3)
 
