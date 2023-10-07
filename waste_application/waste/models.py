@@ -47,6 +47,10 @@ class OrganizeWaste(models.Model):
     def __str__(self) -> str:
         return f'{self.emission_source} {self.emission_source_number} {self.au_ptu_number} {self.harmful_substance_name} [{self.year} {self.quarter}]'
 
+    class Meta:
+        verbose_name = 'Организованные'
+        verbose_name_plural = 'Организованные'
+
 # Сварка
 class WeldingWaste(models.Model):
 
@@ -56,17 +60,21 @@ class WeldingWaste(models.Model):
     mark = models.CharField(verbose_name='Марка электр.', max_length=100)
     emission = models.DecimalField(verbose_name='Удельн. выдел.', max_digits=6, decimal_places=3)
     
-    iron_ox_kg = models.IntegerField(verbose_name='Оксид железа [кг]')
-    iron_ox_ton = models.DecimalField(verbose_name='Оксид железа [т/год]', max_digits=6, decimal_places=5, default=0)
+    iron_ox_kg = models.DecimalField(verbose_name='Оксид железа [кг]', max_digits=8, decimal_places=5, default=0)
+    iron_ox_ton = models.DecimalField(verbose_name='Оксид железа [т/год]', max_digits=8, decimal_places=5, default=0)
 
-    mg_gg = models.DecimalField(verbose_name='Марганец [г/г]', max_digits=4, decimal_places=3)
+    mg_gg = models.DecimalField(verbose_name='Марганец [г/г]', max_digits=5, decimal_places=4)
     mg_ton = models.DecimalField(verbose_name='Марганец [т/год]', max_digits=7, decimal_places=6, default=0)
 
-    hyd_flu_gkg = models.DecimalField(verbose_name='Фтористый водород [г/кг]', max_digits=4, decimal_places=3)
+    hyd_flu_gkg = models.DecimalField(verbose_name='Фтористый водород [г/кг]', max_digits=5, decimal_places=4)
     hyd_flu_ton = models.DecimalField(verbose_name='Фтористый водород [т/год]', max_digits=8, decimal_places=7, default=0)
 
     def __str__(self) -> str:
         return f'{self.mark} {self.emission} [{self.year} {self.quarter}]'
+
+    class Meta:
+        verbose_name = 'Сварка'
+        verbose_name_plural = 'Сварка'
 
 # Неорганизованные
 class UnOrganizeWaste(models.Model):
@@ -113,6 +121,10 @@ class UnOrganizeWaste(models.Model):
     def __str__(self) -> str:
         return f'[{self.obj_type} {self.e_s_number}] {self.year} {self.quarter} {self.harmful_substance_name}'
 
+    class Meta:
+        verbose_name = 'Неорганизованные'
+        verbose_name_plural = 'Неорганизованные'
+
 # Котельные (типы)
 class BoilerWaste(models.Model):
 
@@ -131,10 +143,15 @@ class BoilerWaste(models.Model):
     R = models.DecimalField(verbose_name="R", max_digits=3, decimal_places=2, default=0)
 
     Bk = models.DecimalField(verbose_name="Bk", max_digits=3, decimal_places=2, default=0)
-    Bt = models.DecimalField(verbose_name="Bt", max_digits=3, decimal_places=2, default=0)
+    Bt = models.DecimalField(verbose_name="Bt", max_digits=4, decimal_places=3, default=0)
 
     def __str__(self) -> str:
         return f'{self.name} K={self.K}'
+
+    class Meta:
+        verbose_name = 'Котельные (типы)'
+        verbose_name_plural = 'Котельные (типы)'
+
 # Котельные (углерод оксид)
 class BoilerCarbonOxWaste(models.Model):
 
@@ -170,6 +187,11 @@ class BoilerCarbonOxWaste(models.Model):
 
     def __str__(self) -> str:
         return f'{self.name.name} [{self.year}/{self.month}/{self.quarter}]'
+
+    class Meta:
+        verbose_name = 'Котельные (углерод оксид)'
+        verbose_name_plural = 'Котельные (углерод оксид)'
+
 # Котельные (азот диоксид и азот оксид)
 class BoilerNitrogenWaste(models.Model):
 
@@ -209,6 +231,11 @@ class BoilerNitrogenWaste(models.Model):
     
     def __str__(self) -> str:
         return f'{self.name.name} [{self.year}/{self.month}]'
+
+    class Meta:
+        verbose_name = 'Котельные (азот диоксид и азот оксид)'
+        verbose_name_plural = 'Котельные (азот диоксид и азот оксид)'
+
 # Котельные (дизельное топливо и сажа)
 class BoilerSulfCarbWaste(models.Model):
 
@@ -240,6 +267,10 @@ class BoilerSulfCarbWaste(models.Model):
     def __str__(self) -> str:
         return f'дизельное топливо / сажа | {self.Mso2} {self.year}'
 
+    class Meta:
+        verbose_name = 'Котельные (дизельное топливо и сажа)'
+        verbose_name_plural = 'Котельные (дизельное топливо и сажа)'
+
 # Данные для Деклараций
 class DeclarationWaste(models.Model):
 
@@ -253,6 +284,10 @@ class DeclarationWaste(models.Model):
 
     def __str__(self) -> str:
         return f'{self.year} [{self.quarter}]'
+
+    class Meta:
+        verbose_name = 'Данные для Деклараций'
+        verbose_name_plural = 'Данные для Деклараций'
 
 class DeclarationCalc(models.Model):
 

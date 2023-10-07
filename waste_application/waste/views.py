@@ -616,7 +616,7 @@ class CreateBoilerNitrogenWasteView(AuthUserMixin, View):
             'form': form,
             "year": year,
             "quarter": quarter,
-            'description': 'выброс азота диоксида и азота оксида',
+            'description': 'выброс азота диоксида, азота оксида и углерода оксида',
         }
 
         return render(request, 'BoilerWaste/create.html', context)
@@ -637,52 +637,15 @@ class CreateBoilerNitrogenWasteView(AuthUserMixin, View):
                 B = form.cleaned_data['B'],
                 Qh = form.cleaned_data['Qh'],
                 T = form.cleaned_data['T'],
-                Q = form.cleaned_data['Q'],
-                Bs = form.cleaned_data['Bs'],
-                Knox = form.cleaned_data['Knox'],
-                Mnox = form.cleaned_data['Mnox'],
-                Mno2 = form.cleaned_data['Mno2'],
-                Mno = form.cleaned_data['Mno'],
+                Q = 0,
+                Bs = 0,
+                Knox = 0,
+                Mnox = 0,
+                Mno2 = 0,
+                Mno = 0,
             )
             orgObj.save()
-            pod_2_save(year, quarter)
 
-            return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
-
-        context = {
-            'form': form,
-            "year": year,
-            "quarter": quarter,
-        }
-
-        return render(request, 'BoilerWaste/create.html', context)
-
-class CreateBoilerCarbonOxWasteView(AuthUserMixin, View):
-
-    def get(self, request, **kwargs):
-
-        year = kwargs.get('year')
-        quarter = kwargs.get('q')
-
-        form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None)
-
-        context = {
-            'form': form,
-            "year": year,
-            "quarter": quarter,
-            'description': 'выброс углерода оксида',
-        }
-
-        return render(request, 'BoilerWaste/create.html', context)
-
-    def post(self, request, **kwargs):
-
-        year = kwargs.get('year')
-        quarter = kwargs.get('q')
-
-        form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None)
-
-        if form.is_valid():
             orgObj = BoilerCarbonOxWaste.objects.create(
                 name = form.cleaned_data['name'],
                 quarter = form.cleaned_data['quarter'],
@@ -690,11 +653,12 @@ class CreateBoilerCarbonOxWasteView(AuthUserMixin, View):
                 year = form.cleaned_data['year'],
                 B = form.cleaned_data['B'],
                 Qh = form.cleaned_data['Qh'],
-                Qh_calc = form.cleaned_data['Qh_calc'],
-                Cco = form.cleaned_data['Cco'],
-                Mco = form.cleaned_data['Mco'],
+                Qh_calc = 0,
+                Cco = 0,
+                Mco = 0,
             )
             orgObj.save()
+
             pod_2_save(year, quarter)
 
             return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
@@ -706,6 +670,56 @@ class CreateBoilerCarbonOxWasteView(AuthUserMixin, View):
         }
 
         return render(request, 'BoilerWaste/create.html', context)
+
+# class CreateBoilerCarbonOxWasteView(AuthUserMixin, View):
+
+#     def get(self, request, **kwargs):
+
+#         year = kwargs.get('year')
+#         quarter = kwargs.get('q')
+
+#         form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None)
+
+#         context = {
+#             'form': form,
+#             "year": year,
+#             "quarter": quarter,
+#             'description': 'выброс углерода оксида',
+#         }
+
+#         return render(request, 'BoilerWaste/create.html', context)
+
+#     def post(self, request, **kwargs):
+
+#         year = kwargs.get('year')
+#         quarter = kwargs.get('q')
+
+#         form = BoilerCarbonOxWasteForm(year, quarter, request.POST or None)
+
+#         if form.is_valid():
+#             orgObj = BoilerCarbonOxWaste.objects.create(
+#                 name = form.cleaned_data['name'],
+#                 quarter = form.cleaned_data['quarter'],
+#                 month = form.cleaned_data['month'],
+#                 year = form.cleaned_data['year'],
+#                 B = form.cleaned_data['B'],
+#                 Qh = form.cleaned_data['Qh'],
+#                 Qh_calc = form.cleaned_data['Qh_calc'],
+#                 Cco = form.cleaned_data['Cco'],
+#                 Mco = form.cleaned_data['Mco'],
+#             )
+#             orgObj.save()
+#             pod_2_save(year, quarter)
+
+#             return redirect(f'/boiler/waste/main/?year={year}&quarter={quarter}')
+
+#         context = {
+#             'form': form,
+#             "year": year,
+#             "quarter": quarter,
+#         }
+
+#         return render(request, 'BoilerWaste/create.html', context)
 
 class CreateBoilerSulfCarbWasteView(AuthUserMixin, View):
 

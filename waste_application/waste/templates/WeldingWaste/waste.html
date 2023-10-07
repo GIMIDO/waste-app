@@ -1,20 +1,19 @@
 {% extends 'base/base.html' %} {% block content %}
-<div class="mb-3">
-  <hr />
-  <form class="w-50" method="get" action="{% url 'welding-waste-main' %}">
-    <p class="fs-4 fw-bold">Поиск</p>
-    <div class="input-group mb-3">
+<div class="" style="margin-bottom: 150px;">
+  <form class="" method="get" action="{% url 'welding-waste-main' %}">
+    <p class="fs-4 fw-bold mb-2">Поиск</p>
+    <div class="input-group">
       <label class="input-group-text">Год</label>
       <input
         type="number"
         name="year"
-        class="form-control me-1"
+        class="form-control"
         placeholder="Год"
         value="{{ page_data.year }}"
       />
     </div>
 
-    <input class="btn btn-primary" type="submit" value="Найти" />
+    <input class="btn btn-primary mt-2" type="submit" value="Найти" />
   </form>
 
   <hr />
@@ -26,7 +25,7 @@
 
   {% if sum_calc %}
   <table class="table table-bordered table-hover mt-3 caption-top">
-    <caption>Квартальный и годовой расчет</caption>
+    <caption class="text-end">Квартальный и годовой расчет</caption>
     <thead>
       <tr class="text-center align-middle">
         <th rowspan="2"></th>
@@ -96,7 +95,7 @@
   {% endif %}
 
   <table class="table table-bordered table-hover mt-3 caption-top">
-    <caption>Сохраненные записи</caption>
+    <caption class="text-end">Сохраненные записи</caption>
     <thead>
       <tr class="text-center align-middle">
         <th rowspan="2" >Марка<br />электр.</th>
@@ -152,12 +151,21 @@
     </tbody>
   </table>
 
-  <a
-    href="{% url 'welding-waste-create' page_data.year %}"
-    class="btn btn-success"
-    >Добавить в эту таблицу</a
-  >
-  <a href="{% url 'excel-download-welding' page_data.year %}" class="btn btn-primary">Скачать как файл Excel</a>
+  <div class="fixed-bottom" style="background: #fff; ">
+    <hr style="padding: 0; margin: 0;" class="">
+    <div class="two-items" style="display: flex; justify-content: space-between;">
+      <p class="fs-4 ms-5 my-2">Сварка | <strong>{{ page_data.year }}</strong> год</p>
+      <div class="mx-5 my-2">
+        <a
+        href="{% url 'welding-waste-create' page_data.year %}"
+        class="btn btn-success"
+        >Добавить в эту таблицу</a
+        >
+        <a href="{% url 'excel-download-welding' page_data.year %}" class="btn btn-primary">Скачать в Excel</a>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 {% endblock content %}

@@ -155,13 +155,14 @@ def welding_waste_sum_calc(data):
 
 
 # - - - Неорганизованные - - - #
-# Расчет значений для объекта Сварки
+# Расчет значений для объекта
 def unorganize_waste_calculate(data):
 
     for elem in data:
         elem.all = elem.first_month + elem.second_month + elem.third_month
-        elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 9)
-        elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
+        # elem.Tw = round(elem.T * elem.all / decimal.Decimal(3600), 9)
+        # elem.G = round(elem.Tw * elem.M * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
+        elem.G = round(elem.M * elem.all * decimal.Decimal(3600) * decimal.Decimal(0.000001), 9)
 
         elem.all = round(elem.all, 3)
 
@@ -243,7 +244,10 @@ def get_hs(obj_type):
 def boiler_carbon_waste_calc(data):
 
     for elem in data:
-        elem.Qh_calc = round(elem.Qh * elem.name.K * decimal.Decimal(0.001), 5)
+        if elem.name.name == "з/сушилка к/з":
+            elem.Qh_calc = round(decimal.Decimal(42.4400), 2)
+        else:
+            elem.Qh_calc = round(elem.Qh * elem.name.K * decimal.Decimal(0.001), 5)
         elem.Cco = round(elem.Qh_calc * elem.name.q3 * elem.name.R, 5)
         elem.Mco = round(elem.B * elem.Cco * decimal.Decimal(0.001), 5)
 
@@ -286,15 +290,18 @@ def boiler_carbon_waste_month(data, months):
 
     for elem in data:
         if elem.month == months[0]:
-            B1 += elem.B
+            if elem.name.name != "з/сушилка к/з":
+                B1 += elem.B
             Mco1 += elem.Mco
 
         elif elem.month == months[1]:
-            B2 += elem.B
+            if elem.name.name != "з/сушилка к/з":
+                B2 += elem.B
             Mco2 += elem.Mco
 
         elif elem.month == months[2]:
-            B3 += elem.B
+            if elem.name.name != "з/сушилка к/з":
+                B3 += elem.B
             Mco3 += elem.Mco
 
         # после всех расчетов производим округление, для красоты вывода
@@ -312,24 +319,24 @@ def boiler_nitrogen_waste_month(data, months):
     Mno2_1, Mno2_2, Mno2_3 = 0, 0, 0
 
     for elem in data:
-        
-        # если элемент НЕ "з/сушилка к/з", то суммируем его
-        if elem.name.name != "з/сушилка к/з":
 
-            if elem.month == months[0]:
+        if elem.month == months[0]:
+            if elem.name.name != "з/сушилка к/з":
                 B1 += elem.B
-                Mno1 += elem.Mno
-                Mno2_1 += elem.Mno2
+            Mno1 += elem.Mno
+            Mno2_1 += elem.Mno2
 
-            elif elem.month == months[1]:
+        elif elem.month == months[1]:
+            if elem.name.name != "з/сушилка к/з":
                 B2 += elem.B
-                Mno2 += elem.Mno
-                Mno2_2 += elem.Mno2
+            Mno2 += elem.Mno
+            Mno2_2 += elem.Mno2
 
-            elif elem.month == months[2]:
+        elif elem.month == months[2]:
+            if elem.name.name != "з/сушилка к/з":
                 B3 += elem.B
-                Mno3 += elem.Mno
-                Mno2_3 += elem.Mno2
+            Mno3 += elem.Mno
+            Mno2_3 += elem.Mno2
 
         # после всех расчетов производим округление, для красоты вывода
         elem.Q = round(elem.Q, 4)
