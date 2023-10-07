@@ -1,53 +1,50 @@
 {% extends 'base/base.html' %} {% block content %}
-<div class="" style="margin-bottom: 150px;">
-  <form class="" method="get" action="{% url 'unorganize-waste-main' %}">
-    <p class="fs-4 fw-bold mb-2">Поиск</p>
-    <div class="d-flex justify-content-start">
-      <div class="input-group wform me-2">
-        <label class="input-group-text">Источник</label>
-        <select name="obj_type" type="text" class="form-select">
-          <option value="{{ page_data.obj_type }}" selected hidden>{{ page_data.obj_type }}</option>
-          <option value="Мельзавод">Мельзавод</option>
-          <option value="Крупозавод">Крупозавод</option>
-          <option value="РБ">РБ</option>
-          <option value="Фосфин">Фосфин</option>
-        </select>
-      </div>
+<div class="mb-3">
+  <hr />
+  <form class="w-50" method="get" action="{% url 'unorganize-waste-main' %}">
+    <p class="fs-4 fw-bold">Поиск</p>
 
-      <div class="input-group wform me-2">
-        <label class="input-group-text">Год</label>
-        <input
-          type="number"
-          name="year"
-          class="form-control"
-          placeholder="Год"
-          value="{{ page_data.year }}"
-        />
-      </div>
-
-      <div class="input-group wform me-2">
-        <label class="input-group-text">Квартал</label>
-        <select name="quarter" type="text" class="form-select">
-          <option value="{{ page_data.quarter }}" selected hidden>{{ page_data.quarter }}</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </div>
+    <div class="input-group mb-1">
+      <label class="input-group-text">Источник</label>
+      <select name="obj_type" type="text" class="form-select">
+        <option value="{{ page_data.obj_type }}" selected hidden>{{ page_data.obj_type }}</option>
+        <option value="Мельзавод">Мельзавод</option>
+        <option value="Крупозавод">Крупозавод</option>
+        <option value="РБ">РБ</option>
+        <option value="Фосфин">Фосфин</option>
+      </select>
     </div>
 
-    <input class="btn btn-primary mt-2" type="submit" value="Найти" />
+    <div class="input-group mb-3">
+      <label class="input-group-text">Год</label>
+      <input
+        type="year"
+        name="year"
+        class="form-control me-1"
+        placeholder="Год"
+        value="{{ page_data.year }}"
+      />
+      <label class="input-group-text">Квартал</label>
+      <select name="quarter" type="text" class="form-select">
+        <option value="{{ page_data.quarter }}" selected hidden>{{ page_data.quarter }}</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+
+    <input class="btn btn-primary" type="submit" value="Найти" />
   </form>
 
   <hr />
 
   <p class="fs-4">
-    <strong>{{ page_data.obj_type }}</strong>, <strong>{{ page_data.quarter }}</strong> квартал <strong>{{ page_data.year }}</strong> года
+    Расчет неорганизованных источников выброса за <strong>{{ page_data.quarter }}</strong> квартал <strong>{{ page_data.year }}</strong> года, <strong>{{ page_data.obj_type }}</strong>
   </p>
 
   <table class="table table-bordered table-hover mt-3 caption-top">
-    <caption class="text-end">Сохраненные записи</caption>
+    <caption>Сохраненные записи</caption>
     <thead>
       <tr class="text-center align-middle">
         <th rowspan="2">№ источника<br>выброса</th>
@@ -108,9 +105,13 @@
         {% endfor %}
     </tbody>
   </table>
-
+  <a
+    href="{% url 'unorganize-waste-create' page_data.obj_type page_data.year page_data.quarter %}"
+    class="btn btn-success"
+    >Добавить в эту таблицу</a
+  >
   <table class="table table-bordered table-hover mt-3 text-center caption-top w-50">
-    <caption class="text-end">Квартальный расчет</caption>
+    <caption>Квартальный расчет</caption>
     <thead>
       <tr class=" align-middle">
         <th></th>
@@ -130,22 +131,8 @@
     </tbody>
   </table>
   
-  
-  <div class="fixed-bottom" style="background: #fff; ">
-    <hr style="padding: 0; margin: 0;" class="">
-    <div class="two-items" style="display: flex; justify-content: space-between;">
-      <p class="fs-4 ms-5 my-2">Неорганизованные | <strong>{{ page_data.obj_type }}</strong>, <strong>{{ page_data.quarter }}</strong> квартал <strong>{{ page_data.year }}</strong> года</p>
-      <div class="mx-5 my-2">
-        <a
-        href="{% url 'unorganize-waste-create' page_data.obj_type page_data.year page_data.quarter %}"
-        class="btn btn-success"
-        >Добавить в эту таблицу</a
-        >
-        <a href="{% url 'excel-download-unorganize' page_data.obj_type page_data.year page_data.quarter %}" class="btn btn-primary">Скачать в Excel</a>
-      </div>
-    </div>
+  <a href="{% url 'excel-download-unorganize' page_data.obj_type page_data.year page_data.quarter %}" class="btn btn-primary">Скачать как файл Excel</a>
 
-  </div>
 </div>
 
 <style>
